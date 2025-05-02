@@ -6,21 +6,21 @@ import { cn } from "@/lib/utils";
 import { ThemeProvider } from "@/components/theme-provider";
 import { siteConfig } from "@/config/site";
 import { Toaster } from "@/components/ui/sonner"
+import localFont from "next/font/local";
 import { Analytics } from "@vercel/analytics/react"
 import { TranslationsProvider } from "@/components/translations-context"
 import { Banner } from "@/components/banner";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
+// Persian font
+const vazir = localFont({
+  src: "./fonts/YekanBakhFaNum-Light.ttf",
+  display: "swap",
 });
 
 export const metadata: Metadata = {
-  title: "Next.js + OpenAI Realtime API (WebRTC)",
+  title: "دستیار صوتی آتریپا",
   description: "Next.js Starter for using the OpenAI Realtime API WebRTC method. Starter showcases capabilities of OpenAI's latest Realtime API (12/17/2024). It has all shadcn/ui components to build your own real-time voice AI application. Fastest & latest way to do Voice AI (Dec 2024), implementing API advancements of Day of OpenAI's 12 days of Christmas.",
-  authors: [{ name: siteConfig.author, url: siteConfig.links.twitter }],
-  creator: siteConfig.author,
-  metadataBase: new URL(siteConfig.url),
+  creator: "امیر نجفی",
   openGraph: {
     images: "/opengraph-image.png",
   },
@@ -36,16 +36,11 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" suppressHydrationWarning>
-      <body
-        className={cn(
-          "min-h-dvh bg-background font-sans antialiased",
-          geistSans.variable
-        )}
-      >
+    <html lang="en" suppressHydrationWarning className={vazir.className} dir="rtl">
+      <body>
         <ThemeProvider
           attribute="class"
-          defaultTheme="dark"
+          defaultTheme="light"
           enableSystem
           disableTransitionOnChange
         >

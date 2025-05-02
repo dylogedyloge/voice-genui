@@ -92,7 +92,6 @@ const Siri: React.FC<SiriProps> = ({
                 <Mic size={20} />
               </motion.div>
             ) : (
-              // Render MicOff directly when active, add key for AnimatePresence
               <MicOff size={20} key="micOffIcon" />
             )}
           </AnimatePresence>
@@ -104,8 +103,6 @@ const Siri: React.FC<SiriProps> = ({
           animate={{ width: isSessionActive ? siriWaveConfig.width : 0, opacity: isSessionActive ? 1 : 0 }} // Animate width based on state
           exit={{ width: 0, opacity: 0 }}
           transition={{ duration: 0.3 }}
-          // Removed pointerEvents: 'none'
-          style={{ marginLeft: '10px' }}
         >
           {/* Conditionally render Siriwave only when active */}
           {isSessionActive && <ReactSiriwave {...siriWaveConfig} />}

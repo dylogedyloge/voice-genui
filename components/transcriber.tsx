@@ -68,11 +68,10 @@ function Transcriber({ conversation }: TranscriberProps) {
             )}
             <div
               className={`
-                px-4 py-1 rounded-lg break-words
-                max-w-[70vw] md:max-w-[40vw]
+                max-w-[80%] p-2 rounded-lg 
                 ${message.role === 'user'
-                  ? 'bg-primary text-background'
-                  : 'bg-secondary dark:text-foreground'}
+                  ? "max-w-[80%]  rounded-tr-none bg-secondary text-secondary-foreground"
+                  : "max-w-[80%]  rounded-tl-none text-[#006363]  bg-[#006363] bg-opacity-5 font-medium "}
               `}
             >
               <p>{message.text ? message.text : 'User is speaking...'}</p>

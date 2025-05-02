@@ -17,7 +17,7 @@ function Home() {
   }, [conversation]);
 
   return (
-    <section className="flex flex-col w-screen h-[95vh] max-h-dvh p-6 gap-4 overflow-x-hidden"> {/* Reduced gap */}
+    <section className="flex flex-col w-screen h-[95vh] max-h-dvh p-6 gap-4 overflow-x-hidden">
       {/* Chat area grows and scrolls if needed */}
       <div
         ref={chatContainerRef}
@@ -28,7 +28,7 @@ function Home() {
         )}
       </div>
       {/* Replace Button with Siri component */}
-      <div className="w-full flex justify-center items-center"> {/* Added items-center */}
+      <div className="w-full flex justify-center items-center" > {/* Added items-center */}
         <Siri
           theme="ios9" // Or "ios", or make it configurable
           currentVolume={currentVolume}

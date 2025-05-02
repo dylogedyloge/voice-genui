@@ -34,7 +34,7 @@ interface UseWebRTCAudioSessionReturn {
  */
 export default function useWebRTCAudioSession(
   voice: string,
-  tools?: Tool[],
+  tools?: Tool[]
 ): UseWebRTCAudioSessionReturn {
   const { t, locale } = useTranslations();
   // Connection/session states
@@ -153,7 +153,7 @@ export default function useWebRTCAudioSession(
           return { ...msg, ...partial };
         }
         return msg;
-      }),
+      })
     );
   }
 
@@ -514,13 +514,16 @@ export default function useWebRTCAudioSession(
    * Send a text message through the data channel
    */
   function sendTextMessage(text: string) {
-    if (!dataChannelRef.current || dataChannelRef.current.readyState !== "open") {
+    if (
+      !dataChannelRef.current ||
+      dataChannelRef.current.readyState !== "open"
+    ) {
       console.error("Data channel not ready");
       return;
     }
 
     const messageId = uuidv4();
-    
+
     // Add message to conversation immediately
     const newMessage: Conversation = {
       id: messageId,
@@ -530,8 +533,8 @@ export default function useWebRTCAudioSession(
       isFinal: true,
       status: "final",
     };
-    
-    setConversation(prev => [...prev, newMessage]);
+
+    setConversation((prev) => [...prev, newMessage]);
 
     // Send message through data channel
     const message = {
@@ -551,9 +554,10 @@ export default function useWebRTCAudioSession(
     const response = {
       type: "response.create",
     };
-    
+
     dataChannelRef.current.send(JSON.stringify(message));
-    dataChannelRef.current.send(JSON.stringify(response));}
+    dataChannelRef.current.send(JSON.stringify(response));
+  }
 
   // Cleanup on unmount
   useEffect(() => {
