@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button"
-import Transcriber from "@/components/ui/transcriber"
+import Transcriber from "@/components/transcriber"
 import { Conversation } from "@/lib/conversations"
 import {
   Dialog,

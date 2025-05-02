@@ -51,8 +51,8 @@ export default function RootLayout({
         >
           <TranslationsProvider>
             <div className="relative flex min-h-dvh flex-col bg-background items-center">
-              <Header />
-              <Banner />
+              {/* <Header /> */}
+              {/* <Banner /> */}
               <main className="flex flex-1 justify-center items-start">
                 {children}
               </main>
@@ -60,7 +60,7 @@ export default function RootLayout({
             <Toaster />
           </TranslationsProvider>
         </ThemeProvider>
-        <Analytics />
+        {/* <Analytics /> */}
       </body>
     </html>
   );

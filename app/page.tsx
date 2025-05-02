@@ -1,102 +1,43 @@
 "use client"
+import React, { useRef, useEffect } from "react";
+import Transcriber from "@/components/transcriber"; // Ensure correct path
+import useWebRTCAudioSession from "@/hooks/use-webrtc";
+import Siri from "@/components/siri"; // Import the Siri component
 
-import React, { useEffect, useState } from "react"
-import useWebRTCAudioSession from "@/hooks/use-webrtc"
-import { tools } from "@/lib/tools"
-import { Welcome } from "@/components/welcome"
-import { VoiceSelector } from "@/components/voice-select"
-import { BroadcastButton } from "@/components/broadcast-button"
-import { StatusDisplay } from "@/components/status"
-import { TokenUsageDisplay } from "@/components/token-usage"
-import { MessageControls } from "@/components/message-controls"
-import { ToolsEducation } from "@/components/tools-education"
-import { TextInput } from "@/components/text-input"
-import { motion } from "framer-motion"
-import { useToolsFunctions } from "@/hooks/use-tools"
+function Home() {
+  // Destructure currentVolume as well
+  const { handleStartStopClick, isSessionActive, conversation, msgs, currentVolume } = useWebRTCAudioSession('alloy');
+  const chatContainerRef = useRef<HTMLDivElement>(null);
 
-const App: React.FC = () => {
-  // State for voice selection
-  const [voice, setVoice] = useState("ash")
-
-  // WebRTC Audio Session Hook
-  const {
-    status,
-    isSessionActive,
-    registerFunction,
-    handleStartStopClick,
-    msgs,
-    conversation,
-    sendTextMessage
-  } = useWebRTCAudioSession(voice, tools)
-
-  // Get all tools functions
-  const toolsFunctions = useToolsFunctions();
-
+  // Automatically scroll to bottom when conversation updates
   useEffect(() => {
-    // Register all functions by iterating over the object
-    Object.entries(toolsFunctions).forEach(([name, func]) => {
-      const functionNames: Record<string, string> = {
-        timeFunction: 'getCurrentTime',
-        backgroundFunction: 'changeBackgroundColor',
-        partyFunction: 'partyMode',
-        launchWebsite: 'launchWebsite', 
-        copyToClipboard: 'copyToClipboard',
-        scrapeWebsite: 'scrapeWebsite'
-      };
-      
-      registerFunction(functionNames[name], func);
-    });
-  }, [registerFunction, toolsFunctions])
+    if (chatContainerRef.current) {
+      chatContainerRef.current.scrollTop = chatContainerRef.current.scrollHeight;
+    }
+  }, [conversation]);
 
   return (
-    <main className="h-full">
-      <motion.div 
-        className="container flex flex-col items-center justify-center mx-auto max-w-3xl my-20 p-12 border rounded-lg shadow-xl"
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5 }}
+    <section className="flex flex-col w-screen h-[95vh] max-h-dvh p-6 gap-4 overflow-x-hidden"> {/* Reduced gap */}
+      {/* Chat area grows and scrolls if needed */}
+      <div
+        ref={chatContainerRef}
+        className="flex-1 flex flex-col min-h-0 overflow-y-auto"
       >
-        <Welcome />
-        
-        <motion.div 
-          className="w-full max-w-md bg-card text-card-foreground rounded-xl border shadow-sm p-6 space-y-4"
-          initial={{ opacity: 0, scale: 0.95 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ delay: 0.2, duration: 0.4 }}
-        >
-          <VoiceSelector value={voice} onValueChange={setVoice} />
-          
-          <div className="flex flex-col items-center gap-4">
-            <BroadcastButton 
-              isSessionActive={isSessionActive} 
-              onClick={handleStartStopClick}
-            />
-          </div>
-          {msgs.length > 4 && <TokenUsageDisplay messages={msgs} />}
-          {status && (
-            <motion.div 
-              className="w-full flex flex-col gap-2"
-              initial={{ opacity: 0, height: 0 }}
-              animate={{ opacity: 1, height: "auto" }}
-              exit={{ opacity: 0, height: 0 }}
-              transition={{ duration: 0.3 }}
-            >
-              <MessageControls conversation={conversation} msgs={msgs} />
-              <TextInput 
-                onSubmit={sendTextMessage}
-                disabled={!isSessionActive}
-              />
-            </motion.div>
-          )}
-        </motion.div>
-        
-        {status && <StatusDisplay status={status} />}
-        <div className="w-full flex flex-col items-center gap-4">
-          <ToolsEducation />
-        </div>
-      </motion.div>
-    </main>
-  )
+        {isSessionActive && (
+          <Transcriber conversation={conversation} />
+        )}
+      </div>
+      {/* Replace Button with Siri component */}
+      <div className="w-full flex justify-center items-center"> {/* Added items-center */}
+        <Siri
+          theme="ios9" // Or "ios", or make it configurable
+          currentVolume={currentVolume}
+          isSessionActive={isSessionActive}
+          handleStartStopClick={handleStartStopClick}
+        />
+      </div>
+    </section>
+  );
 }
 
-export default App;
+export default Home;
