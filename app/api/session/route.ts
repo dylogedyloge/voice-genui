@@ -24,8 +24,11 @@ export async function POST() {
     );
 
     if (!response.ok) {
+      // Log the status and attempt to read the error body from OpenAI
+      const errorBody = await response.text(); // Read body as text first
+      console.error(`OpenAI API Error: Status ${response.status}, Body: ${errorBody}`);
       throw new Error(
-        `API request failed with status ${JSON.stringify(response)}`
+        `API request failed with status ${response.status}. Body: ${errorBody}` // Include body in thrown error
       );
     }
 
@@ -34,9 +37,11 @@ export async function POST() {
     // Return the JSON response to the client
     return NextResponse.json(data);
   } catch (error) {
-    console.error("Error fetching session data:", error);
+    // Log the caught error (could be the one thrown above or another)
+    console.error("Error fetching session data:", error instanceof Error ? error.message : String(error));
     return NextResponse.json(
-      { error: "Failed to fetch session data" },
+      // Provide a slightly more informative error message if possible
+      { error: `Failed to fetch session data: ${error instanceof Error ? error.message : 'Unknown error'}` },
       { status: 500 }
     );
   }

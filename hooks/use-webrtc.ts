@@ -319,19 +319,41 @@ export default function useWebRTCAudioSession(
    * Fetch ephemeral token from your Next.js endpoint
    */
   async function getEphemeralToken() {
+    let response: Response | null = null;
     try {
-      const response = await fetch("/api/session", {
+      response = await fetch("/api/session", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
       });
       if (!response.ok) {
-        throw new Error(`Failed to get ephemeral token: ${response.status}`);
+        let errorMsg = `Failed to get ephemeral token: ${response.status}`;
+        try {
+          // Attempt to parse the error response body from your API route
+          const errorData = await response.json();
+          // Use the error message from the API if available
+          errorMsg = errorData.error || errorMsg;
+        }
+         catch (parseError) {
+          // If parsing fails, use the status text or the basic message
+          errorMsg = `${errorMsg} (${response.statusText})`;
+          console.warn("Could not parse error response body:", parseError);
+
+        }
+        throw new Error(errorMsg);
       }
       const data = await response.json();
+      if (!data.client_secret || !data.client_secret.value) {
+        // Handle cases where the response is OK but data structure is unexpected
+        console.error("Unexpected response structure from /api/session:", data);
+        throw new Error("Invalid token data received from server.");
+      }
       return data.client_secret.value;
     } catch (err) {
-      console.error("getEphemeralToken error:", err);
-      throw err;
+      // Log the specific error (could be fetch error, parsing error, or the one thrown above)
+      const errorMessage = err instanceof Error ? err.message : String(err);
+      console.error("getEphemeralToken error:", errorMessage);
+      // Re-throw the error with the specific message to be caught by startSession
+      throw new Error(errorMessage);
     }
   }
 
@@ -456,8 +478,9 @@ export default function useWebRTCAudioSession(
       setStatus("Session established successfully!");
     } catch (err) {
       console.error("startSession error:", err);
-      setStatus(`Error: ${err}`);
-      stopSession();
+      const errorMessage = err instanceof Error ? err.message : "An unknown error occurred";
+      setStatus(`Error: ${errorMessage}`);
+      stopSession(); // Ensure cleanup happens on error
     }
   }
 
