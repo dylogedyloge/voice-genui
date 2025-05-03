@@ -17,7 +17,7 @@ function Home() {
   }, [conversation]);
 
   return (
-    <section className="flex flex-col w-screen h-[95vh] max-h-dvh p-6 gap-4 overflow-x-hidden">
+    <section className="flex flex-col w-screen h-[95vh] p-6 gap-4 overflow-x-hidden">
       {/* Chat area grows and scrolls if needed */}
       <div
         ref={chatContainerRef}

@@ -1,14 +1,14 @@
 "use client";
 
 import React, { useState, useEffect } from 'react';
-// Removed: import { Mic, MicOff } from 'lucide-react';
+import { Mic, MicOff } from 'lucide-react'; // Re-import Mic and MicOff
 import ReactSiriwave, { IReactSiriwaveProps } from 'react-siriwave';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion'; // Re-import AnimatePresence
 // Removed: import { Button } from "@/components/ui/button";
 // Import cn utility and buttonVariants helper from shadcn setup
 import { cn } from "@/lib/utils";
 import { buttonVariants } from "@/components/ui/button";
-import Image from 'next/image';
+// Removed: import Image from 'next/image';
 
 // Define CurveStyle type
 type CurveStyle = "ios" | "ios9";
@@ -72,18 +72,34 @@ const Siri: React.FC<SiriProps> = ({
               variant: isSessionActive ? "destructive" : "default", // Conditional variant still applies
               size: "icon"
             }),
-            "rounded-xl p-1" // Added padding to contain the image better
+            
           )}
         >
-          {/* Replace Icons with the logo image */}
-          <Image
-            src="/logo1-dark.png" 
-            width={200}
-            height={200}// Path relative to public folder
-            alt="Control Button"
-            className="w-full h-full object-contain" // Make image fill the button area
-          />
-          {/* Removed AnimatePresence as the icon is now static */}
+          {/* Restore AnimatePresence for icon transition */}
+          <AnimatePresence mode="wait">
+            {!isSessionActive ? (
+              <motion.div
+                key="micIcon"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 0.2 }}
+              >
+                <Mic size={20} /> {/* Restore Mic icon */}
+              </motion.div>
+            ) : (
+              // Use motion.div for consistency if exit animation is desired for MicOff too
+              <motion.div
+                key="micOffIcon"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 0.2 }}
+              >
+                 <MicOff size={20} /> {/* Restore MicOff icon */}
+              </motion.div>
+            )}
+          </AnimatePresence>
         </motion.button>
         {/* Siri Wave container */}
         <motion.div

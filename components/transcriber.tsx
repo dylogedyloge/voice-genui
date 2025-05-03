@@ -66,8 +66,8 @@ function Transcriber({ conversation }: TranscriberProps) {
           key={index}
           className={`flex items-center ${ // Added items-center for vertical alignment
             message.role === "user"
-              ? "justify-start hidden" // Show user messages again
-              : "justify-center" // Center assistant messages
+              ? "justify-end hidden" // Show user messages again
+              : "justify-start" // Center assistant messages
             }`}
         // Conditionally hide user messages if needed (removed hidden class for now)
         // style={{ display: message.role === 'user' ? 'none' : 'flex' }} // Alternative way to hide user messages if filter is removed
@@ -77,15 +77,14 @@ function Transcriber({ conversation }: TranscriberProps) {
             <>
               {/* Conditionally render logo for the first assistant message */}
               {index === firstAssistantIndex ? (
-                <Button variant="default" size="icon" className="rounded-xl p-1 ml-4" disabled>
-                  <Image
-                  src="/logo1-dark.png"
-                  width={200}
-                  height={200}// Path relative to public folder
-                  alt="atribot"
-                  className="w-full h-full object-contain" // Make image fill the button area
-                />
-                </Button>
+                <Image
+                src="/logo1.png"
+                width={100}
+                height={100}
+                alt="logo"
+                className="w-6 h-8 ml-4"
+                
+              />
 
               ) : (
                 null
