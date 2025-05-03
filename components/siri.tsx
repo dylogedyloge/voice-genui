@@ -1,13 +1,14 @@
 "use client";
 
 import React, { useState, useEffect } from 'react';
-import { Mic, MicOff } from 'lucide-react';
+// Removed: import { Mic, MicOff } from 'lucide-react';
 import ReactSiriwave, { IReactSiriwaveProps } from 'react-siriwave';
 import { motion, AnimatePresence } from 'framer-motion';
 // Removed: import { Button } from "@/components/ui/button";
 // Import cn utility and buttonVariants helper from shadcn setup
 import { cn } from "@/lib/utils";
 import { buttonVariants } from "@/components/ui/button";
+import Image from 'next/image';
 
 // Define CurveStyle type
 type CurveStyle = "ios" | "ios9";
@@ -54,47 +55,35 @@ const Siri: React.FC<SiriProps> = ({
     handleStartStopClick();
   };
 
-  // Removed: const MotionButton = motion(Button);
-
   return (
     <div className="flex flex-col items-center justify-center p-2">
-      <div className="flex items-center justify-center">
-        {/* Reverted to motion.button */}
+      <div className="flex items-center justify-center gap-6">
         <motion.button
           key="callButton"
           onClick={handleToggleCall}
           whileTap={{ scale: 0.9 }}
           whileHover={{ scale: 1.1 }}
-          // Re-added x animation from original
           initial={{ x: 0 }}
           animate={{ x: isSessionActive ? -10 : 0 }}
           transition={{ duration: 0.3 }}
           style={{ zIndex: 10, position: 'relative' }}
-          // Apply button styles using cn and buttonVariants
           className={cn(
             buttonVariants({
-              variant: isSessionActive ? "destructive" : "default", // Conditional variant
-              size: "icon" // Icon size
+              variant: isSessionActive ? "destructive" : "default", // Conditional variant still applies
+              size: "icon"
             }),
-            "rounded-xl" // Keep custom rounding
+            "rounded-xl p-1" // Added padding to contain the image better
           )}
         >
-          {/* Simplified AnimatePresence structure */}
-          <AnimatePresence mode="wait">
-            {!isSessionActive ? (
-              <motion.div
-                key="micIcon"
-                initial={{ opacity: 0 }} // Keep fade for consistency
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-                transition={{ duration: 0.2 }}
-              >
-                <Mic size={20} />
-              </motion.div>
-            ) : (
-              <MicOff size={20} key="micOffIcon" />
-            )}
-          </AnimatePresence>
+          {/* Replace Icons with the logo image */}
+          <Image
+            src="/logo1-dark.png" 
+            width={200}
+            height={200}// Path relative to public folder
+            alt="Control Button"
+            className="w-full h-full object-contain" // Make image fill the button area
+          />
+          {/* Removed AnimatePresence as the icon is now static */}
         </motion.button>
         {/* Siri Wave container */}
         <motion.div
