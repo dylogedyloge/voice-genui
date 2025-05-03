@@ -6,7 +6,7 @@ import Siri from "@/components/siri"; // Import the Siri component
 
 function Home() {
   // Destructure currentVolume as well
-  const { handleStartStopClick, isSessionActive, conversation, msgs, currentVolume } = useWebRTCAudioSession('alloy');
+  const { handleStartStopClick, isSessionActive, conversation, currentVolume } = useWebRTCAudioSession('alloy');
   const chatContainerRef = useRef<HTMLDivElement>(null);
 
   // Automatically scroll to bottom when conversation updates

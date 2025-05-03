@@ -1,15 +1,14 @@
 import type { Metadata } from "next";
-import { Geist } from "next/font/google";
+
 import "./globals.css";
-import { Header } from "@/components/header";
-import { cn } from "@/lib/utils";
+
 import { ThemeProvider } from "@/components/theme-provider";
-import { siteConfig } from "@/config/site";
+
 import { Toaster } from "@/components/ui/sonner"
 import localFont from "next/font/local";
-import { Analytics } from "@vercel/analytics/react"
+
 import { TranslationsProvider } from "@/components/translations-context"
-import { Banner } from "@/components/banner";
+
 
 // Persian font
 const vazir = localFont({
