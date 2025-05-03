@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 // Removed: import { Mic, MicOff } from 'lucide-react';
 import ReactSiriwave, { IReactSiriwaveProps } from 'react-siriwave';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 // Removed: import { Button } from "@/components/ui/button";
 // Import cn utility and buttonVariants helper from shadcn setup
 import { cn } from "@/lib/utils";

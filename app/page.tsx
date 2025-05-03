@@ -23,9 +23,9 @@ function Home() {
         ref={chatContainerRef}
         className="flex-1 flex flex-col min-h-0 overflow-y-auto"
       >
-        {isSessionActive && (
+        {/* {isSessionActive && ( */}
           <Transcriber conversation={conversation} />
-        )}
+        {/* )} */}
       </div>
       {/* Replace Button with Siri component */}
       <div className="w-full flex justify-center items-center" > {/* Added items-center */}

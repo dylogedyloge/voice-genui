@@ -519,7 +519,7 @@ export default function useWebRTCAudioSession(
     setIsSessionActive(false);
     setStatus("Session stopped");
     setMsgs([]);
-    setConversation([]);
+    // setConversation([]);
   }
 
   /**
@@ -529,7 +529,10 @@ export default function useWebRTCAudioSession(
     if (isSessionActive) {
       stopSession();
     } else {
-      startSession();
+      startSession().catch((err) => {
+        console.error("Error starting session:", err);
+        setStatus(`Error: ${err.message}`);
+      });
     }
   }
 
