@@ -297,6 +297,18 @@ export default function useWebRTCAudioSession(
               type: "response.create",
             };
             dataChannelRef.current?.send(JSON.stringify(responseCreate));
+            // --- ADD THIS BLOCK: Insert the tool result as an assistant message (JSON string) ---
+            setConversation((prev) => [
+              ...prev,
+              {
+                id: uuidv4(),
+                role: "assistant",
+                text: JSON.stringify(result),
+                timestamp: new Date().toISOString(),
+                isFinal: true,
+              },
+            ]);
+            // --- END BLOCK ---
           }
           break;
         }
@@ -333,7 +345,7 @@ export default function useWebRTCAudioSession(
           // Use the error message from the API if available
           errorMsg = errorData.error || errorMsg;
         }
-         catch (parseError) {
+        catch (parseError) {
           // If parsing fails, use the status text or the basic message
           errorMsg = `${errorMsg} (${response.statusText})`;
           console.warn("Could not parse error response body:", parseError);

@@ -17,7 +17,7 @@ export async function POST() {
           model: "gpt-4o-realtime-preview-2024-12-17",
           voice: "alloy",
           modalities: ["audio", "text"],
-          instructions: "Speak in Persian language",
+          instructions: "Speak in Persian language. When you use a tool, reply with the tool result as a JSON object, not as a natural language sentence.",
           tool_choice: "auto",
         }),
       }

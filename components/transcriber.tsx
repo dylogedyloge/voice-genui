@@ -7,10 +7,16 @@ import { Conversation } from "@/lib/conversations";
 import Image from "next/image";
 import { Button } from "./ui/button";
 import { formatPersianTime } from "@/lib/time-helpers";
+import { Skeleton } from "@/components/ui/skeleton";
+import WeatherCard from "@/components/weather-card";
+import WeatherCardSkeleton from "@/components/weather-card-skeleton";
+import FlightCard from "@/components/flight-card";
+import FlightCardSkeleton from "@/components/flight-card-skeleton";
 
 
 interface TranscriberProps {
   conversation: Conversation[];
+  flightLoading?: boolean;
 }
 
 const Avatar = React.forwardRef<
@@ -55,71 +61,84 @@ const AvatarFallback = React.forwardRef<
 ));
 AvatarFallback.displayName = AvatarPrimitive.Fallback.displayName;
 
-function Transcriber({ conversation }: TranscriberProps) {
+function Transcriber({ conversation, flightLoading }: TranscriberProps) {
   // Find the index of the first assistant message in the original array
   const firstAssistantIndex = conversation.findIndex(msg => msg.role === 'assistant');
 
   return (
     <div className="space-y-4 mb-4">
-      {conversation.map((message, index) => (
-        <div
-          key={index}
-          className={`flex items-center ${ // Added items-center for vertical alignment
-            message.role === "user"
-              ? "justify-end hidden" // Show user messages again
-              : "justify-start" // Center assistant messages
+      {/* Remove the skeleton from here */}
+      {/* {weatherLoading && <WeatherCardSkeleton />} */}
+      {conversation.map((message, index) => {
+        let flightData = null;
+        let isFlightToolCall = false;
+        if (message.role === "assistant") {
+          try {
+            // Log the raw message text
+            console.log("Raw assistant message.text:", message.text);
+
+            const parsed = JSON.parse(message.text);
+
+            // Log the parsed object
+            console.log("Parsed assistant message:", parsed);
+
+            if (
+              typeof parsed === "object" &&
+              parsed !== null &&
+              "flights" in parsed
+            ) {
+              flightData = parsed;
+              isFlightToolCall = true;
+
+              // Log the flights array
+              console.log("Flights array:", flightData.flights);
+            }
+          } catch (err) {
+            console.log("Error parsing assistant message.text:", err, message.text);
+          }
+        }
+
+        // If this is the last message and loading, show the skeleton here
+        const isLastMessage = index === conversation.length - 1;
+
+        return (
+          <div
+            key={index}
+            className={`flex items-center ${
+              message.role === "user"
+                ? "justify-end hidden"
+                : "justify-start"
             }`}
-        // Conditionally hide user messages if needed (removed hidden class for now)
-        // style={{ display: message.role === 'user' ? 'none' : 'flex' }} // Alternative way to hide user messages if filter is removed
-        >
-          {/* Assistant message handling */}
-          {message.role === 'assistant' && (
-            <>
-              {/* Conditionally render logo for the first assistant message */}
-              {index === firstAssistantIndex ? (
-                <Image
-                src="/logo1.png"
-                width={100}
-                height={100}
-                alt="logo"
-                className="w-6 h-8 ml-4"
-                
-              />
-
-              ) : (
-                null
-              )}
-              <div
-                className="max-w-[80%] p-2 rounded-lg rounded-tr-none text-[#006363] bg-[#006363] bg-opacity-5 font-medium text-right" // Assistant styling, right-aligned text
-              >
-                <p>{message.text}</p>
-                  <p className="text-xs text-muted-foreground prose-sm text-left my-1">
-                    {formatPersianTime(new Date())}
-                  </p>
-                
-              </div>
-            </>
-          )}
-
-          {/* User message handling (restored) */}
-          {message.role === 'user' && (
-            <>
-              <div
-                className="max-w-[80%] p-2 rounded-lg rounded-tr-none bg-secondary text-secondary-foreground" // User styling
-              >
-                <p>{message.text ? message.text : 'User is speaking...'}</p>
-                <div className="text-xs text-muted-foreground text-right"> {/* Align timestamp right */}
-                  {new Date(message.timestamp).toLocaleTimeString('en-US', {
-                    hour: 'numeric',
-                    minute: 'numeric',
-                  })}
-                </div>
-              </div>
-              <Avatar className="w-8 h-8 shrink-0 ml-2" /> {/* User avatar on the right, added margin */}
-            </>
-          )}
-        </div>
-      ))}
+          >
+            {message.role === "assistant" && (
+              <>
+                {flightLoading && isLastMessage ? (
+                  <FlightCardSkeleton />
+                ) : flightData ? (
+                  <FlightCard
+                    flights={flightData.flights || []}
+                    message={flightData.message}
+                    showPassengerCounter={flightData.showPassengerCounter}
+                    showCabinTypeSelector={flightData.showCabinTypeSelector}
+                    departureCityData={flightData.departureCityData}
+                    destinationCityData={flightData.destinationCityData}
+                    cabinType={flightData.cabinType}
+                  />
+                ) : (
+                  <div
+                    className="max-w-[80%] p-2 rounded-lg rounded-tr-none text-[#006363] bg-[#006363] bg-opacity-5 font-medium text-right"
+                  >
+                    <p>{message.text}</p>
+                    <p className="text-xs text-muted-foreground prose-sm text-left my-1">
+                      {formatPersianTime(new Date())}
+                    </p>
+                  </div>
+                )}
+              </>
+            )}
+          </div>
+        );
+      })}
     </div>
   );
 }
