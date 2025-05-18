@@ -88,14 +88,20 @@ function Transcriber({ conversation, flightLoading }: TranscriberProps) {
         let isFlightToolCall = false;
         if (message.role === "assistant") {
           try {
-            const parsed = JSON.parse(message.text);
+            // Only try to parse if it looks like JSON
             if (
-              typeof parsed === "object" &&
-              parsed !== null &&
-              "flights" in parsed
+              typeof message.text === "string" &&
+              message.text.trim().startsWith("{")
             ) {
-              flightData = parsed;
-              isFlightToolCall = true;
+              const parsed = JSON.parse(message.text);
+              if (
+                typeof parsed === "object" &&
+                parsed !== null &&
+                "flights" in parsed
+              ) {
+                flightData = parsed;
+                isFlightToolCall = true;
+              }
             }
           } catch (err) {
             console.log("Error parsing assistant message.text:", err, message.text);
