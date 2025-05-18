@@ -4,70 +4,71 @@ interface Tool {
     name: string;
     description: string;
     parameters?: {
-      type: string;
-      properties: Record<string, {
         type: string;
-        description: string;
-      }>;
+        properties: Record<string, {
+            type: string;
+            description: string;
+        }>;
     };
+    execute?:any
 }
 
 import { determineFlightType, constructApiUrl, transformFlightData } from "./aiUtils";
 
 const toolDefinitions = {
-    getCurrentWeather: {
-        description: 'Gets the current weather',
-        parameters: {
-            city: {
-                type: 'string',
-                description: 'The city to get the weather for'
-            }
-        }
-    },
-    changeBackgroundColor: {
-        description: 'Changes the background color of the page', 
-        parameters: {
-        color: { 
-            type: 'string',
-            description: 'Color value (hex, rgb, or color name)'
-        }
-        }
-    },
-    partyMode: {
-        description: 'Triggers a confetti animation on the page',
-        parameters: {}
-    },
-    launchWebsite: {
-        description: 'Launches a website in the user\'s browser',
-        parameters: {
-        url: {
-            type: 'string',
-            description: 'The URL to launch'
-        }
-        }
-    },
-    copyToClipboard: {
-        description: 'Copies text to the user\'s clipboard',
-        parameters: {
-        text: {
-            type: 'string',
-            description: 'The text to copy'
-        }
-        }
-    },
-    takeScreenshot: {
-        description: 'Takes a screenshot of the current page',
-        parameters: {}
-    },
-    scrapeWebsite: {
-        description: 'Scrapes a URL and returns content in markdown and HTML formats',
-        parameters: {
-            url: {
-                type: 'string',
-                description: 'The URL to scrape'
-            }
-        }
-    },
+    // getCurrentWeather: {
+    //     description: 'Gets the current weather',
+    //     parameters: {
+    //         city: {
+    //             type: 'string',
+    //             description: 'The city to get the weather for'
+    //         }
+    //     }
+    // },
+    // changeBackgroundColor: {
+    //     description: 'Changes the background color of the page',
+    //     parameters: {
+    //         color: {
+    //             type: 'string',
+    //             description: 'Color value (hex, rgb, or color name)'
+    //         }
+    //     }
+    // },
+    // partyMode: {
+    //     description: 'Triggers a confetti animation on the page',
+    //     parameters: {}
+    // },
+    // launchWebsite: {
+    //     description: 'Launches a website in the user\'s browser',
+    //     parameters: {
+    //         url: {
+    //             type: 'string',
+    //             description: 'The URL to launch'
+    //         }
+    //     }
+    // },
+    // copyToClipboard: {
+    //     description: 'Copies text to the user\'s clipboard',
+    //     parameters: {
+    //         text: {
+    //             type: 'string',
+    //             description: 'The text to copy'
+    //         }
+    //     }
+    // },
+    // takeScreenshot: {
+    //     description: 'Takes a screenshot of the current page',
+    //     parameters: {}
+    // },
+    // scrapeWebsite: {
+    //     description: 'Scrapes a URL and returns content in markdown and HTML formats',
+    //     parameters: {
+    //         url: {
+    //             type: 'string',
+    //             description: 'The URL to scrape'
+    //         }
+    //     }
+    // },
     displayFlightCard: {
         description: 'Display a grid of flight cards',
         parameters: {
@@ -159,7 +160,7 @@ const toolDefinitions = {
                     date,
                     passengers
                 );
-
+                console.log("api url in tools", apiUrl)
                 // Fetch flight data
                 const flightResponse = await fetch(apiUrl, {
                     method: isDomestic ? "GET" : "POST",
@@ -252,7 +253,7 @@ const tools: Tool[] = Object.entries(toolDefinitions).map(([name, config]) => ({
         type: 'object',
         properties: config.parameters
     },
-    // execute: config.execute // Pass the execute function if present
+    execute: config.execute // Pass the execute function if present
 }));
 
 

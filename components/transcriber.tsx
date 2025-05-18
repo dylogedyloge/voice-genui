@@ -62,26 +62,33 @@ const AvatarFallback = React.forwardRef<
 AvatarFallback.displayName = AvatarPrimitive.Fallback.displayName;
 
 function Transcriber({ conversation, flightLoading }: TranscriberProps) {
-  // Find the index of the first assistant message in the original array
-  const firstAssistantIndex = conversation.findIndex(msg => msg.role === 'assistant');
+  // State to track how many cards to show for each assistant message
+  const [visibleCounts, setVisibleCounts] = React.useState<{ [index: number]: number }>({});
+
+  // Helper to show more cards
+  const showMore = (index: number, total: number) => {
+    setVisibleCounts((prev) => ({
+      ...prev,
+      [index]: Math.min((prev[index] || 2) + 2, total),
+    }));
+  };
+
+  // Helper to show less cards
+  const showLess = (index: number) => {
+    setVisibleCounts((prev) => ({
+      ...prev,
+      [index]: Math.max((prev[index] || 2) - 2, 2),
+    }));
+  };
 
   return (
     <div className="space-y-4 mb-4">
-      {/* Remove the skeleton from here */}
-      {/* {weatherLoading && <WeatherCardSkeleton />} */}
       {conversation.map((message, index) => {
         let flightData = null;
         let isFlightToolCall = false;
         if (message.role === "assistant") {
           try {
-            // Log the raw message text
-            console.log("Raw assistant message.text:", message.text);
-
             const parsed = JSON.parse(message.text);
-
-            // Log the parsed object
-            console.log("Parsed assistant message:", parsed);
-
             if (
               typeof parsed === "object" &&
               parsed !== null &&
@@ -89,16 +96,12 @@ function Transcriber({ conversation, flightLoading }: TranscriberProps) {
             ) {
               flightData = parsed;
               isFlightToolCall = true;
-
-              // Log the flights array
-              console.log("Flights array:", flightData.flights);
             }
           } catch (err) {
             console.log("Error parsing assistant message.text:", err, message.text);
           }
         }
 
-        // If this is the last message and loading, show the skeleton here
         const isLastMessage = index === conversation.length - 1;
 
         return (
@@ -113,17 +116,69 @@ function Transcriber({ conversation, flightLoading }: TranscriberProps) {
             {message.role === "assistant" && (
               <>
                 {flightLoading && isLastMessage ? (
-                  <FlightCardSkeleton />
+                  <div className="mt-2 grid sm:grid-cols-2 grid-cols-1 gap-2 sm:gap-4">
+                    {Array.from({ length: 2 }).map((_, i) => (
+                      <FlightCardSkeleton key={i} />
+                    ))}
+                  </div>
                 ) : flightData ? (
-                  <FlightCard
-                    flights={flightData.flights || []}
-                    message={flightData.message}
-                    showPassengerCounter={flightData.showPassengerCounter}
-                    showCabinTypeSelector={flightData.showCabinTypeSelector}
-                    departureCityData={flightData.departureCityData}
-                    destinationCityData={flightData.destinationCityData}
-                    cabinType={flightData.cabinType}
-                  />
+                  (flightData.flights && flightData.flights.length > 0) ? (
+                    <div className="mt-2 grid sm:grid-cols-2 grid-cols-1 gap-2 sm:gap-4">
+                      {flightData.flights
+                        .slice(0, visibleCounts[index] || 2)
+                        .map((flight, i) => (
+                          <FlightCard
+                            key={flight.fare_source_code ?? i}
+                            id={flight.id ?? i}
+                            fare_source_code={flight.fare_source_code}
+                            isClosed={flight.isClosed ?? false}
+                            visaRequirements={flight.visaRequirements ?? []}
+                            fares={flight.fares ?? { adult: { price: flight.price ?? 0, count: flight.passengers?.adult ?? 1, total_price: flight.price ?? 0 }, total_price: flight.price ?? 0 }}
+                            segments={flight.segments ?? []}
+                            returnSegments={flight.returnSegments ?? []}
+                            with_tour={flight.with_tour ?? false}
+                            departureCityData={flightData.departureCityData}
+                            destinationCityData={flightData.destinationCityData}
+                            isDomestic={
+                              flightData.departureCityData?.isDomestic &&
+                              flightData.destinationCityData?.isDomestic
+                            }
+                            {...flight}
+                            message={flightData.message}
+                            showPassengerCounter={flightData.showPassengerCounter}
+                            showCabinTypeSelector={flightData.showCabinTypeSelector}
+                            cabinType={flightData.cabinType}
+                          />
+                        ))}
+                      <div className="col-span-full flex justify-center mt-4 gap-2">
+                        {(visibleCounts[index] || 2) < flightData.flights.length && (
+                          <Button
+                            variant="outline"
+                            onClick={() => showMore(index, flightData.flights.length)}
+                          >
+                            بیشتر
+                          </Button>
+                        )}
+                        {(visibleCounts[index] || 2) > 2 && (
+                          <Button
+                            variant="outline"
+                            onClick={() => showLess(index)}
+                          >
+                            کمتر
+                          </Button>
+                        )}
+                      </div>
+                    </div>
+                  ) : (
+                    <div
+                      className="max-w-[80%] p-2 rounded-lg rounded-tr-none text-[#006363] bg-[#006363] bg-opacity-5 font-medium text-right"
+                    >
+                      <p>{flightData.message}</p>
+                      <p className="text-xs text-muted-foreground prose-sm text-left my-1">
+                        {formatPersianTime(new Date())}
+                      </p>
+                    </div>
+                  )
                 ) : (
                   <div
                     className="max-w-[80%] p-2 rounded-lg rounded-tr-none text-[#006363] bg-[#006363] bg-opacity-5 font-medium text-right"

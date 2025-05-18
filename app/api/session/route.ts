@@ -1,6 +1,11 @@
 import { NextResponse } from "next/server";
+import DateService from "@/services/date-service";
+
+
 
 export async function POST() {
+  const { gregorian: tomorrowDateGregorian, jalali: tomorrowDateJalali } =
+    DateService.getTomorrow();
   try {
     if (!process.env.OPENAI_API_KEY) {
       throw new Error(`OPENAI_API_KEY is not set`);
@@ -17,7 +22,31 @@ export async function POST() {
           model: "gpt-4o-realtime-preview-2024-12-17",
           voice: "alloy",
           modalities: ["audio", "text"],
-          instructions: "Speak in Persian language. When you use a tool, reply with the tool result as a JSON object, not as a natural language sentence.",
+          instructions: `
+            You are a friendly Persian assistant. Follow these strict rules:
+
+            1. Use CASUAL and INFORMAL Persian language (e.g., میتونم instead of می توانم).
+            2. When users ask about:
+               - Flights → Use 'displayFlightCard' tool
+               - Hotels → Use 'displayHotelCard' tool
+            3. The tommorrow date is ${tomorrowDateGregorian} (Gregorian) and ${tomorrowDateJalali} (Jalali). Use this to interpret relative dates.
+            4. Important Rules:
+               - NEVER list travel details in text.
+               - ALWAYS use the appropriate card display tool.
+               - If required parameters (e.g., date, departure, destination, passengers) are missing, ASK the user for clarification in Persian.
+               - ALL DATES in responses MUST be in JALALI format (e.g., 1404/07/23).
+               - ALL DATES sent to tools MUST be in GREGORIAN format (e.g., 2025-10-15).
+               - DO NOT assume default values for departure or destination.
+            5. Response structure:
+               - Friendly Persian greeting.
+               - Brief contextual response.
+               - Ask for missing parameters if needed.
+               - Display relevant cards.
+               - Follow-up question or closing remark.
+               - Note that all the prices are in RIALS. ریال
+
+            When you use a tool, reply with the tool result as a JSON object, not as a natural language sentence.
+          `,
           tool_choice: "auto",
         }),
       }

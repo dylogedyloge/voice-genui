@@ -9,6 +9,7 @@ export interface Tool {
   name: string;
   description: string;
   parameters?: Record<string, any>;
+  execute?:any
 }
 
 /**
@@ -168,6 +169,7 @@ export default function useWebRTCAudioSession(
    * Main data channel message handler: interprets events from the server.
    */
   async function handleDataChannelMessage(event: MessageEvent) {
+    console.log("if any messages are recieved at all",event.data)
     try {
       const msg = JSON.parse(event.data);
       // console.log("Incoming dataChannel message:", msg);
