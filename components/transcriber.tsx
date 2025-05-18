@@ -126,7 +126,7 @@ function Transcriber({ conversation, flightLoading }: TranscriberProps) {
                     <div className="mt-2 grid sm:grid-cols-2 grid-cols-1 gap-2 sm:gap-4">
                       {flightData.flights
                         .slice(0, visibleCounts[index] || 2)
-                        .map((flight, i) => (
+                        .map((flight:any, i:number) => (
                           <FlightCard
                             key={flight.fare_source_code ?? i}
                             id={flight.id ?? i}
