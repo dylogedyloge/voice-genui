@@ -14,61 +14,10 @@ interface Tool {
 }
 
 import { determineFlightType, constructApiUrl, transformFlightData } from "./aiUtils";
+import { constructHotelApiUrl, determineCityType, normalizeHotelData } from "./aiUtils/hotelHelpers";
 
 const toolDefinitions = {
-    // getCurrentWeather: {
-    //     description: 'Gets the current weather',
-    //     parameters: {
-    //         city: {
-    //             type: 'string',
-    //             description: 'The city to get the weather for'
-    //         }
-    //     }
-    // },
-    // changeBackgroundColor: {
-    //     description: 'Changes the background color of the page',
-    //     parameters: {
-    //         color: {
-    //             type: 'string',
-    //             description: 'Color value (hex, rgb, or color name)'
-    //         }
-    //     }
-    // },
-    // partyMode: {
-    //     description: 'Triggers a confetti animation on the page',
-    //     parameters: {}
-    // },
-    // launchWebsite: {
-    //     description: 'Launches a website in the user\'s browser',
-    //     parameters: {
-    //         url: {
-    //             type: 'string',
-    //             description: 'The URL to launch'
-    //         }
-    //     }
-    // },
-    // copyToClipboard: {
-    //     description: 'Copies text to the user\'s clipboard',
-    //     parameters: {
-    //         text: {
-    //             type: 'string',
-    //             description: 'The text to copy'
-    //         }
-    //     }
-    // },
-    // takeScreenshot: {
-    //     description: 'Takes a screenshot of the current page',
-    //     parameters: {}
-    // },
-    // scrapeWebsite: {
-    //     description: 'Scrapes a URL and returns content in markdown and HTML formats',
-    //     parameters: {
-    //         url: {
-    //             type: 'string',
-    //             description: 'The URL to scrape'
-    //         }
-    //     }
-    // },
+
     displayFlightCard: {
         description: 'Display a grid of flight cards',
         parameters: {
@@ -208,41 +157,166 @@ const toolDefinitions = {
             }
         }
     },
-    // partyMode: {
-    //     description: 'Triggers a confetti animation on the page',
-    //     parameters: {}
-    // },
-    // launchWebsite: {
-    //     description: 'Launches a website in the user\'s browser',
-    //     parameters: {
-    //     url: {
-    //         type: 'string',
-    //         description: 'The URL to launch'
-    //     }
-    //     }
-    // },
-    // copyToClipboard: {
-    //     description: 'Copies text to the user\'s clipboard',
-    //     parameters: {
-    //     text: {
-    //         type: 'string',
-    //         description: 'The text to copy'
-    //     }
-    //     }
-    // },
-    // takeScreenshot: {
-    //     description: 'Takes a screenshot of the current page',
-    //     parameters: {}
-    // },
-    // scrapeWebsite: {
-    //     description: 'Scrapes a URL and returns content in markdown and HTML formats',
-    //     parameters: {
-    //         url: {
-    //             type: 'string',
-    //             description: 'The URL to scrape'
-    //         }
-    //     }
-    // }
+    displayHotelCard: {
+        description: 'Display a grid of hotel cards',
+        parameters: {
+            location: {
+                type: 'string',
+                description: 'The city or location for the hotel search'
+            },
+            checkIn: {
+                type: 'string',
+                description: 'Check-in date (YYYY-MM-DD)'
+            },
+            checkOut: {
+                type: 'string',
+                description: 'Check-out date (YYYY-MM-DD)'
+            },
+            adultsCount: {
+                type: 'number',
+                description: 'Number of adults'
+            },
+            childCount: {
+                type: 'number',
+                description: 'Number of children'
+            },
+            childAges: {
+                type: 'array',
+                description: 'Ages of children',
+                items: { type: 'number' } // <-- Add this line
+            },
+            nationality: {
+                type: 'object',
+                description: 'Nationality data (optional)',
+                optional: true,
+                properties: {
+                    id: { type: 'number', description: 'Nationality ID' },
+                    name: { type: 'string', description: 'Nationality name' },
+                    english_name: { type: 'string', description: 'English name' },
+                    iata: { type: 'string', description: 'IATA code', optional: true },
+                    parto_iata: { type: 'string', description: 'Parto IATA code', optional: true },
+                    description: { type: 'string', description: 'Description', optional: true },
+                    nationality: { type: 'string', description: 'Nationality code' },
+                    continental: { type: 'string', description: 'Continent' }
+                }
+            }
+        },
+        execute: async function ({
+            location,
+            checkIn,
+            checkOut,
+            adultsCount = 1,
+            childCount = 0,
+            childAges = [],
+            nationality
+        }: {
+            location: string;
+            checkIn: string;
+            checkOut: string;
+            adultsCount?: number;
+            childCount?: number;
+            childAges?: number[];
+            nationality?: any;
+        }) {
+            if (!checkIn || !checkOut) {
+                return {
+                    message: `لطفاً تاریخ ورود و خروج خود را مشخص کنید.`,
+                    hotels: [],
+                };
+            }
+
+            try {
+                // Determine city type and get city ID
+                const cityData = await determineCityType(location);
+
+                if (typeof cityData?.parto_id === 'undefined' || cityData.parto_id === null) {
+                    throw new Error("Failed to retrieve the city identifier (parto_id).");
+                }
+
+                // Construct the API URL
+                const apiUrl = constructHotelApiUrl(
+                    cityData.isDomestic,
+                    cityData.parto_id.toString(),
+                    {
+                        location,
+                        checkIn,
+                        checkOut,
+                        adultsCount,
+                        childCount,
+                        childAges,
+                    }
+                );
+
+                // Fetch hotel data
+                const hotelResponse = await fetch(apiUrl, {
+                    method: "GET",
+                    headers: {
+                        Accept: "application/json",
+                        "Content-Type": "application/json",
+                        "X-Requested-With": "XMLHttpRequest",
+                    },
+                    cache: "no-store",
+                });
+
+                if (!hotelResponse.ok) {
+                    throw new Error(
+                        `Failed to fetch hotel data: ${hotelResponse.statusText}`
+                    );
+                }
+
+                const hotelData = await hotelResponse.json();
+
+                // Transform hotel data into a consistent format
+                const hotels = normalizeHotelData(
+                    hotelData,
+                    cityData.isDomestic,
+                    location,
+                    checkIn,
+                    checkOut,
+                );
+                return {
+                    hotels: hotels,
+                    message:
+                        hotels.length > 0
+                            ? `${hotels.length} هتل در ${location} پیدا شد.`
+                            : `متاسفانه هتلی در ${location} پیدا نشد.`,
+                    cityData: cityData,
+                    gregorianCheckIn: checkIn,
+                    gregorianCheckOut: checkOut,
+                    searchParams: {
+                        rooms: [
+                            {
+                                adult: adultsCount,
+                                child: childCount,
+                                childAges: childAges,
+                            },
+                        ],
+                        nationality: nationality || null,
+                    },
+                };
+            } catch (error) {
+                console.error("Error fetching hotel data:", error);
+                return {
+                    message:
+                        "متاسفم، در حال حاضر نمی‌توانیم اطلاعات هتل را به شما بدهیم. لطفاً بعداً دوباره امتحان کنید.",
+                    hotels: [],
+                    cityData: null,
+                    gregorianCheckIn: checkIn,
+                    gregorianCheckOut: checkOut,
+                    searchParams: {
+                        rooms: [
+                            {
+                                adult: adultsCount,
+                                child: childCount,
+                                childAges: childAges,
+                            },
+                        ],
+                    }
+                };
+            }
+        }
+    },
+
 } as const;
 
 const tools: Tool[] = Object.entries(toolDefinitions).map(([name, config]) => ({
@@ -256,6 +330,6 @@ const tools: Tool[] = Object.entries(toolDefinitions).map(([name, config]) => ({
     execute: config.execute // Pass the execute function if present
 }));
 
-
+console.log("TOOLS ARRAY:", tools);
 export type { Tool };
 export { tools };

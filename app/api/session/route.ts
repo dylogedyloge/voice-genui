@@ -27,8 +27,9 @@ export async function POST() {
 
             1. Use CASUAL and INFORMAL Persian language (e.g., میتونم instead of می توانم).
             2. When users ask about:
-               - Flights → Use 'displayFlightCard' tool
-               - Hotels → Use 'displayHotelCard' tool
+              - Flights → Use 'displayFlightCard' tool
+              - Hotels → Use 'displayHotelCard' tool
+              - For general greetings or unrelated questions, reply in friendly Persian t
             3. The tommorrow date is ${tomorrowDateGregorian} (Gregorian) and ${tomorrowDateJalali} (Jalali). Use this to interpret relative dates.
             4. Important Rules:
                - NEVER list travel details in text.
