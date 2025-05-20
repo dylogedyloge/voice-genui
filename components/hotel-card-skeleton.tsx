@@ -82,70 +82,69 @@ const HotelCardSkeleton = () => {
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.3 }}
     >
-      <div className="min-w-60 sm:w-96 shadow-md dark:bg-black bg-white dark:bg-grid-small-white/[0.1] bg-grid-small-black/[0.1] rounded-lg overflow-x-hidden">
-        {/* Image/Carousel Skeleton */}
-        <div className="relative h-48 w-full">
-          <Skeleton className="absolute inset-0 w-full h-full rounded-t-lg" />
-          {/* Star badge skeleton */}
-          <div className="absolute top-2 right-2 z-20">
-            <Skeleton className="w-12 h-5 rounded-full" />
+      <div className="shadow-md dark:bg-black bg-white dark:bg-grid-small-white/[0.1] bg-grid-small-black/[0.1] rounded-lg">
+          <div className="relative h-48 w-full">
+            <Skeleton className="absolute inset-0 w-full h-full rounded-t-lg" />
+            {/* Star badge skeleton */}
+            <div className="absolute top-2 right-2 z-20">
+              <Skeleton className="w-12 h-5 rounded-full" />
+            </div>
           </div>
-        </div>
-        <div className="p-4">
-          {/* Hotel name and type badge */}
-          <div className="flex items-center justify-between mb-4">
-            <Skeleton className="w-32 h-5 rounded" />
-            <Skeleton className="w-12 h-5 rounded" />
-          </div>
+          <div className="p-4">
+            {/* Hotel name and type badge */}
+            <div className="flex items-center justify-between mb-4">
+              <Skeleton className="w-32 h-5 rounded" />
+              <Skeleton className="w-12 h-5 rounded" />
+            </div>
 
-          {/* Centered address skeleton */}
-          <div className="flex items-center gap-2 mb-3 justify-center">
-            <MapPin className="w-4 h-4 text-muted-foreground" />
-            <Skeleton className="w-32 h-4 rounded" />
-          </div>
+            {/* Centered address skeleton */}
+            <div className="flex items-center gap-2 mb-3 justify-center">
+              <MapPin className="w-4 h-4 text-muted-foreground" />
+              <Skeleton className="w-32 h-4 rounded" />
+            </div>
 
-          {/* Room type and capacity */}
-          <div className="flex items-center justify-between mb-3">
-            <div className="flex items-center gap-2">
-              <Bed className="w-4 h-4 text-muted-foreground" />
+            {/* Room type and capacity */}
+            <div className="flex items-center justify-between mb-3">
+              <div className="flex items-center gap-2">
+                <Bed className="w-4 h-4 text-muted-foreground" />
+                <Skeleton className="w-20 h-4 rounded" />
+              </div>
+              <div className="flex items-center gap-2">
+                <Users className="w-4 h-4 text-muted-foreground" />
+                <Skeleton className="w-16 h-4 rounded" />
+              </div>
+            </div>
+
+            {/* Breakfast skeleton */}
+            <div className="flex items-center gap-2 mb-3">
+              <Coffee className="w-4 h-4 text-muted-foreground" />
               <Skeleton className="w-20 h-4 rounded" />
             </div>
-            <div className="flex items-center gap-2">
-              <Users className="w-4 h-4 text-muted-foreground" />
-              <Skeleton className="w-16 h-4 rounded" />
+
+            {/* Check-in and Check-out */}
+            <div className="flex items-center justify-between mb-3">
+              <div className="flex items-center gap-1">
+                <Calendar className="w-4 h-4 text-muted-foreground" />
+                <Skeleton className="w-14 h-4 rounded" />
+              </div>
+              <div className="flex items-center gap-1">
+                <Calendar className="w-4 h-4 text-muted-foreground" />
+                <Skeleton className="w-14 h-4 rounded" />
+              </div>
             </div>
-          </div>
 
-          {/* Breakfast skeleton */}
-          <div className="flex items-center gap-2 mb-3">
-            <Coffee className="w-4 h-4 text-muted-foreground" />
-            <Skeleton className="w-20 h-4 rounded" />
-          </div>
-
-          {/* Check-in and Check-out */}
-          <div className="flex items-center justify-between mb-3">
-            <div className="flex items-center gap-1">
-              <Calendar className="w-4 h-4 text-muted-foreground" />
-              <Skeleton className="w-14 h-4 rounded" />
+            {/* Price and cancelable badge */}
+            <div className="flex items-center justify-between">
+              <Skeleton className="w-28 h-6 rounded" />
+              <Skeleton className="w-16 h-5 rounded" />
             </div>
-            <div className="flex items-center gap-1">
-              <Calendar className="w-4 h-4 text-muted-foreground" />
-              <Skeleton className="w-14 h-4 rounded" />
-            </div>
-          </div>
 
-          {/* Price and cancelable badge */}
-          <div className="flex items-center justify-between">
-            <Skeleton className="w-28 h-6 rounded" />
-            <Skeleton className="w-16 h-5 rounded" />
+            {/* Details button */}
+            <Skeleton className="w-full h-10 mt-4 rounded" />
           </div>
-
-          {/* Details button */}
-          <Skeleton className="w-full h-10 mt-4 rounded" />
         </div>
-      </div>
-    </motion.div>
-  );
+      </motion.div>
+    );
 };
 
 export default HotelCardSkeleton;

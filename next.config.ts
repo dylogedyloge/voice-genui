@@ -2,7 +2,7 @@ import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   images: {
-    domains: ["api.atripa.com"],
+    // domains: ["api.atripa.com"],
     remotePatterns: [
       {
         protocol: "https",
@@ -15,6 +15,12 @@ const nextConfig: NextConfig = {
         hostname: "cdn-a-hi.partocrs.com",
         port: "",
         pathname: "/**",
+      },
+      {
+        protocol: "https",
+        hostname: "api.atripa.com",
+        port: "",
+        pathname: "/media/**",
       },
     ],
   },

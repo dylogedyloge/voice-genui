@@ -599,8 +599,8 @@ const FlightCard: React.FC<FlightProps> = ({
   };
 
   return (
-    <Card className="min-w-60 sm:w-96 overflow-hidden transition-shadow duration-300 hover:shadow-lg rounded-lg">
-      <div className="min-w-60 sm:w-96 shadow-md dark:bg-black bg-white dark:bg-grid-small-white/[0.1] bg-grid-small-black/[0.1] rounded-lg">
+    <Card className="w-full overflow-hidden transition-shadow duration-300 hover:shadow-lg rounded-lg">
+      <div className="shadow-md dark:bg-black bg-white dark:bg-grid-small-white/[0.1] bg-grid-small-black/[0.1] rounded-lg">
         <CardHeader className="pb-2">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-1">

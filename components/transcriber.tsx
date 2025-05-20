@@ -80,54 +80,59 @@ function FlightToolRenderer({
   flightLoading: boolean;
   isLastMessage: boolean;
 }) {
+  // Remove this block
   if (flightLoading && isLastMessage) {
     return (
-      <div className="mt-2 grid sm:grid-cols-2 grid-cols-1 gap-2 sm:gap-4">
-        {Array.from({ length: 2 }).map((_, i) => (
-          <FlightCardSkeleton key={i} />
-        ))}
+      <div className="max-w-[80%] p-2 rounded-lg text-[#006363] bg-[#006363] bg-opacity-5 font-medium rounded-tr-none">
+        <div className="mt-2 grid sm:grid-cols-2 grid-cols-1 gap-2 sm:gap-4">
+          {Array.from({ length: 2 }).map((_, i) => (
+            <FlightCardSkeleton key={i} />
+          ))}
+        </div>
       </div>
     );
   }
 
   if (flightData.flights && flightData.flights.length > 0) {
     return (
-      <div className="mt-2 grid sm:grid-cols-2 grid-cols-1 gap-2 sm:gap-4">
-        {flightData.flights
-          .slice(0, visibleCount)
-          .map((flight: any, i: number) => (
-            <FlightCard
-              key={flight.fare_source_code ?? i}
-              id={flight.id ?? i}
-              fare_source_code={flight.fare_source_code}
-              isClosed={flight.isClosed ?? false}
-              visaRequirements={flight.visaRequirements ?? []}
-              fares={
-                flight.fares ?? {
-                  adult: {
-                    price: flight.price ?? 0,
-                    count: flight.passengers?.adult ?? 1,
+      <div className="p-2 rounded-lg text-[#006363] bg-[#006363] bg-opacity-5 font-medium rounded-tr-none">
+        <div className="mt-2 grid sm:grid-cols-2 grid-cols-1 gap-2 sm:gap-4">
+          {flightData.flights
+            .slice(0, visibleCount)
+            .map((flight: any, i: number) => (
+              <FlightCard
+                key={flight.fare_source_code ?? i}
+                id={flight.id ?? i}
+                fare_source_code={flight.fare_source_code}
+                isClosed={flight.isClosed ?? false}
+                visaRequirements={flight.visaRequirements ?? []}
+                fares={
+                  flight.fares ?? {
+                    adult: {
+                      price: flight.price ?? 0,
+                      count: flight.passengers?.adult ?? 1,
+                      total_price: flight.price ?? 0,
+                    },
                     total_price: flight.price ?? 0,
-                  },
-                  total_price: flight.price ?? 0,
+                  }
                 }
-              }
-              segments={flight.segments ?? []}
-              returnSegments={flight.returnSegments ?? []}
-              with_tour={flight.with_tour ?? false}
-              departureCityData={flightData.departureCityData}
-              destinationCityData={flightData.destinationCityData}
-              isDomestic={
-                flightData.departureCityData?.isDomestic &&
-                flightData.destinationCityData?.isDomestic
-              }
-              {...flight}
-              message={flightData.message}
-              showPassengerCounter={flightData.showPassengerCounter}
-              showCabinTypeSelector={flightData.showCabinTypeSelector}
-              cabinType={flightData.cabinType}
-            />
-          ))}
+                segments={flight.segments ?? []}
+                returnSegments={flight.returnSegments ?? []}
+                with_tour={flight.with_tour ?? false}
+                departureCityData={flightData.departureCityData}
+                destinationCityData={flightData.destinationCityData}
+                isDomestic={
+                  flightData.departureCityData?.isDomestic &&
+                  flightData.destinationCityData?.isDomestic
+                }
+                {...flight}
+                message={flightData.message}
+                showPassengerCounter={flightData.showPassengerCounter}
+                showCabinTypeSelector={flightData.showCabinTypeSelector}
+                cabinType={flightData.cabinType}
+              />
+            ))}
+        </div>
         <div className="col-span-full flex justify-center mt-4 gap-2">
           {visibleCount < flightData.flights.length && (
             <Button
@@ -179,32 +184,37 @@ function HotelToolRenderer({
   hotelLoading: boolean;
   isLastMessage: boolean;
 }) {
+  // Remove this block
   if (hotelLoading && isLastMessage) {
     return (
-      <div className="mt-2 grid sm:grid-cols-2 grid-cols-1 gap-2 sm:gap-4">
-        {Array.from({ length: 2 }).map((_, i) => (
-          <HotelCardSkeleton key={i} />
-        ))}
+      <div className="max-w-[80%] p-2 rounded-lg text-[#006363] bg-[#006363] bg-opacity-5 font-medium rounded-tr-none">
+        <div className="mt-2 grid grid-cols-1 gap-2 sm:grid-cols-2 sm:gap-4">
+          {Array.from({ length: 2 }).map((_, i) => (
+            <HotelCardSkeleton key={i} />
+          ))}
+        </div>
       </div>
     );
   }
 
   if (hotelData.hotels && hotelData.hotels.length > 0) {
     return (
-      <div className="mt-2 grid sm:grid-cols-2 grid-cols-1 gap-2 sm:gap-4">
-        {hotelData.hotels
-          .slice(0, visibleCount)
-          .map((hotel: any, i: number) => (
-            <HotelCard
-              key={hotel.id ?? i}
-              {...hotel}
-              message={hotelData.message}
-              cityData={hotelData.cityData}
-              gregorianCheckIn={hotelData.gregorianCheckIn}
-              gregorianCheckOut={hotelData.gregorianCheckOut}
-              searchParams={hotelData.searchParams}
-            />
-          ))}
+      <div className="p-2 rounded-lg text-[#006363] bg-[#006363] bg-opacity-5 font-medium rounded-tr-none">
+        <div className="mt-2 grid sm:grid-cols-2 grid-cols-1 gap-2 sm:gap-4">
+          {hotelData.hotels
+            .slice(0, visibleCount)
+            .map((hotel: any, i: number) => (
+              <HotelCard
+                key={hotel.id ?? i}
+                {...hotel}
+                message={hotelData.message}
+                cityData={hotelData.cityData}
+                gregorianCheckIn={hotelData.gregorianCheckIn}
+                gregorianCheckOut={hotelData.gregorianCheckOut}
+                searchParams={hotelData.searchParams}
+              />
+            ))}
+        </div>
         <div className="col-span-full flex justify-center mt-4 gap-2">
           {visibleCount < hotelData.hotels.length && (
             <Button
@@ -335,6 +345,27 @@ function Transcriber({ conversation, flightLoading, hotelLoading }: TranscriberP
           </div>
         );
       })}
+
+      {/* Show skeletons if loading and last message is from user */}
+      {flightLoading && conversation.length > 0 && conversation[conversation.length - 1].role === "user" && (
+        <div className="p-2 rounded-lg text-[#006363] bg-[#006363] bg-opacity-5 font-medium rounded-tr-none">
+          <div className="mt-2 grid sm:grid-cols-2 grid-cols-1 gap-2 sm:gap-4">
+            {/* Skeleton cards */}
+            {Array.from({ length: 2 }).map((_, i) => (
+              <FlightCardSkeleton key={i} />
+            ))}
+          </div>
+        </div>
+      )}
+      {hotelLoading && conversation.length > 0 && conversation[conversation.length - 1].role === "user" && (
+        <div className="max-w-[80%] p-2 rounded-lg text-[#006363] bg-[#006363] bg-opacity-5 font-medium rounded-tr-none">
+          <div className="mt-2 grid sm:grid-cols-2 grid-cols-1 gap-2 sm:gap-4">
+            {Array.from({ length: 2 }).map((_, i) => (
+              <HotelCardSkeleton key={i} />
+            ))}
+          </div>
+        </div>
+      )}
     </div>
   );
 }

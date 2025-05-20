@@ -70,7 +70,7 @@ function Home() {
         <Transcriber
           conversation={conversation}
           flightLoading={flightLoading}
-          hotelLoading={hotelLoading} // <-- Pass hotelLoading to Transcriber
+          hotelLoading={hotelLoading} 
         />
       </div>
       {/* Replace Button with Siri component */}

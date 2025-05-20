@@ -33,6 +33,10 @@ export async function POST() {
             3. The tommorrow date is ${tomorrowDateGregorian} (Gregorian) and ${tomorrowDateJalali} (Jalali). Use this to interpret relative dates.
             4. Important Rules:
                - NEVER list travel details in text.
+               - When mentioning dates, prices, or numbers in your response, ALWAYS convert them to Persian literal text format first.
+               - For example:
+                 • Price "24,800" → "بیست و چهار هزار و هشتصد"
+                 • Date "1404/03/01" → "اول خرداد هزار و چهارصد و چهار"
                - ALWAYS use the appropriate card display tool.
                - If required parameters (e.g., date, departure, destination, passengers) are missing, ASK the user for clarification in Persian.
                - ALL DATES in responses MUST be in JALALI format (e.g., 1404/07/23).

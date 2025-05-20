@@ -361,8 +361,8 @@ const HotelCard = ({
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.3 }}
     >
-      <div className="min-w-60 sm:w-96 shadow-md dark:bg-black bg-white dark:bg-grid-small-white/[0.1] bg-grid-small-black/[0.1] rounded-lg overflow-x-hidden">
-        <div className="relative h-48 w-full">
+      <div className="w-full shadow-md dark:bg-black bg-white dark:bg-grid-small-white/[0.1] bg-grid-small-black/[0.1] rounded-lg overflow-x-hidden">
+        <div className="relative h-48 w-80">
           {Array.isArray(images) && images.length > 0 && images[0]?.image ? (
             <CustomCarousel images={images} hotelName={hotelName} />
           ) : (
