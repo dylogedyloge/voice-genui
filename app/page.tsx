@@ -7,7 +7,7 @@ import { tools } from "@/lib/tools";
 
 function Home() {
   // Destructure currentVolume as well
-  const { handleStartStopClick, isSessionActive, conversation, currentVolume,registerFunction } = useWebRTCAudioSession('alloy', tools);
+  const { handleStartStopClick, isSessionActive, conversation, currentVolume,registerFunction } = useWebRTCAudioSession('ash', tools);
   const chatContainerRef = useRef<HTMLDivElement>(null);
   const [flightLoading, setFlightLoading] = React.useState(false);
   const [hotelLoading, setHotelLoading] = React.useState(false); // <-- Add this line

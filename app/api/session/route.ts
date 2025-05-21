@@ -20,7 +20,7 @@ export async function POST() {
         },
         body: JSON.stringify({
           model: "gpt-4o-realtime-preview-2024-12-17",
-          voice: "alloy",
+          voice: "ash",
           modalities: ["audio", "text"],
           instructions: `
             You are a friendly Persian assistant. Follow these strict rules:
