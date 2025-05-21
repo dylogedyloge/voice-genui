@@ -300,16 +300,16 @@ export default function useWebRTCAudioSession(
             };
             dataChannelRef.current?.send(JSON.stringify(responseCreate));
             // --- REMOVE THIS BLOCK: Insert the tool result as an assistant message (JSON string) ---
-            // setConversation((prev) => [
-            //   ...prev,
-            //   {
-            //     id: uuidv4(),
-            //     role: "assistant",
-            //     text: JSON.stringify(result),
-            //     timestamp: new Date().toISOString(),
-            //     isFinal: true,
-            //   },
-            // ]);
+            setConversation((prev) => [
+              ...prev,
+              {
+                id: uuidv4(),
+                role: "assistant",
+                text: JSON.stringify(result),
+                timestamp: new Date().toISOString(),
+                isFinal: true,
+              },
+            ]);
             // --- END BLOCK ---
           }
           break;

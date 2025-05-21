@@ -82,6 +82,21 @@ const toolDefinitions = {
                 };
             }
 
+            // --- Add this block: Check for missing passenger fields ---
+            const missingPassengerFields = [];
+            if (typeof passengers.adult !== "number") missingPassengerFields.push("بزرگسال");
+            if (typeof passengers.child !== "number") missingPassengerFields.push("کودک");
+            if (typeof passengers.infant !== "number") missingPassengerFields.push("نوزاد");
+
+            if (missingPassengerFields.length > 0) {
+                return {
+                    message: `لطفاً تعداد ${missingPassengerFields.join(" و ")} را مشخص کنید.`,
+                    showPassengerCounter: true,
+                    flights: [],
+                };
+            }
+            // --- End block ---
+
             const { isDomestic } = await determineFlightType(
                 departureCity,
                 destinationCity
@@ -183,7 +198,7 @@ const toolDefinitions = {
             childAges: {
                 type: 'array',
                 description: 'Ages of children',
-                items: { type: 'number' } // <-- Add this line
+                items: { type: 'number' }
             },
             nationality: {
                 type: 'object',
@@ -205,8 +220,8 @@ const toolDefinitions = {
             location,
             checkIn,
             checkOut,
-            adultsCount = 1,
-            childCount = 0,
+            adultsCount,
+            childCount,
             childAges = [],
             nationality
         }: {
@@ -218,12 +233,32 @@ const toolDefinitions = {
             childAges?: number[];
             nationality?: any;
         }) {
-            if (!checkIn || !checkOut) {
+            // --- Add missing parameter checks ---
+            if (!location) {
                 return {
-                    message: `لطفاً تاریخ ورود و خروج خود را مشخص کنید.`,
+                    message: "لطفاً شهر یا محل مورد نظر برای جستجوی هتل را وارد کنید.",
                     hotels: [],
                 };
             }
+            if (!checkIn || !checkOut) {
+                return {
+                    message: "لطفاً تاریخ ورود و خروج خود را مشخص کنید.",
+                    hotels: [],
+                };
+            }
+            if (typeof adultsCount !== "number" || adultsCount < 1) {
+                return {
+                    message: "لطفاً تعداد بزرگسالان را مشخص کنید.",
+                    hotels: [],
+                };
+            }
+            if (typeof childCount !== "number") {
+                return {
+                    message: "لطفاً تعداد کودکان را مشخص کنید (در صورت وجود).",
+                    hotels: [],
+                };
+            }
+            // --- End missing parameter checks ---
 
             try {
                 // Determine city type and get city ID
