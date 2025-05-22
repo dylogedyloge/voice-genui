@@ -70,15 +70,15 @@ const toolDefinitions = {
         }) {
             if (!date) {
                 return {
-                    message: "لطفاً تاریخ پرواز رو به من بگین.",
-                    flights: [],
+                    message: "",
+                    // flights: [],
                 };
             }
 
             if (!passengers) {
                 return {
-                    message: "لطفاً تعداد مسافران رو بهم بگین.",
-                    showPassengerCounter: true,
+                    message: "",
+                    // showPassengerCounter: true,
                 };
             }
 
@@ -90,8 +90,8 @@ const toolDefinitions = {
 
             if (missingPassengerFields.length > 0) {
                 return {
-                    message: `لطفاً تعداد ${missingPassengerFields.join(" و ")} را مشخص کنید.`,
-                    showPassengerCounter: true,
+                    message: "",
+                    // showPassengerCounter: true,
                     flights: [],
                 };
             }
