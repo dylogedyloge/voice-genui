@@ -10,7 +10,7 @@ interface Tool {
             description: string;
         }>;
     };
-    execute?:any
+    execute?: any
 }
 
 import { determineFlightType, constructApiUrl, transformFlightData } from "./aiUtils";
@@ -71,14 +71,14 @@ const toolDefinitions = {
             if (!date) {
                 return {
                     message: "",
-                    // flights: [],
+                    flights: [],
                 };
             }
 
             if (!passengers) {
                 return {
                     message: "",
-                    // showPassengerCounter: true,
+                    showPassengerCounter: true,
                 };
             }
 
@@ -91,11 +91,10 @@ const toolDefinitions = {
             if (missingPassengerFields.length > 0) {
                 return {
                     message: "",
-                    // showPassengerCounter: true,
+                    showPassengerCounter: true,
                     flights: [],
                 };
             }
-            // --- End block ---
 
             const { isDomestic } = await determineFlightType(
                 departureCity,
@@ -103,7 +102,7 @@ const toolDefinitions = {
             );
             if (!isDomestic && !cabinType) {
                 return {
-                    message: "لطفا نوع پروازتان را انتخاب کنید",
+                    message: "",
                     showCabinTypeSelector: true,
                     flights: [],
                 };
@@ -236,25 +235,26 @@ const toolDefinitions = {
             // --- Add missing parameter checks ---
             if (!location) {
                 return {
-                    message: "لطفاً شهر یا محل مورد نظر برای جستجوی هتل را وارد کنید.",
+                    message: "",
                     hotels: [],
                 };
             }
             if (!checkIn || !checkOut) {
                 return {
-                    message: "لطفاً تاریخ ورود و خروج خود را مشخص کنید.",
+                    message: "",
                     hotels: [],
                 };
             }
             if (typeof adultsCount !== "number" || adultsCount < 1) {
                 return {
-                    message: "لطفاً تعداد بزرگسالان را مشخص کنید.",
+                    message: "",
                     hotels: [],
+
                 };
             }
             if (typeof childCount !== "number") {
                 return {
-                    message: "لطفاً تعداد کودکان را مشخص کنید (در صورت وجود).",
+                    message: "",
                     hotels: [],
                 };
             }

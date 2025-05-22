@@ -169,7 +169,7 @@ export default function useWebRTCAudioSession(
    * Main data channel message handler: interprets events from the server.
    */
   async function handleDataChannelMessage(event: MessageEvent) {
-    console.log("if any messages are recieved at all",event.data)
+    // console.log("if any messages are recieved at all",event.data)
     try {
       const msg = JSON.parse(event.data);
       // console.log("Incoming dataChannel message:", msg);
@@ -283,7 +283,7 @@ export default function useWebRTCAudioSession(
           if (fn) {
             const args = JSON.parse(msg.arguments);
             const result = await fn(args);
-
+            console.log("TOOL RESULT:", result); // <--- Add this
             // Respond with function output
             const response = {
               type: "conversation.item.create",

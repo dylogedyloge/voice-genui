@@ -280,6 +280,7 @@ function Transcriber({ conversation, flightLoading, hotelLoading }: TranscriberP
               message.text.trim().startsWith("{")
             ) {
               const parsed = JSON.parse(message.text);
+              console.log("PARSED ASSISTANT MESSAGE:", parsed); // <--- Add this
               if (parsed && typeof parsed === "object") {
                 if ("flights" in parsed) {
                   toolData = parsed;
