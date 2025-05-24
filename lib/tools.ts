@@ -68,41 +68,68 @@ const toolDefinitions = {
             cabinType?: { id: number; name: string; value: string };
             passengers?: { adult: number; child: number; infant: number };
         }) {
+            if (!departureCity || !destinationCity) {
+                return {
+                    message: "لطفا مبدا و مقصد سفر خود را مشخص کنید.",
+                    flights: [],
+                };
+            }
+            
             if (!date) {
                 return {
-                    message: "",
+                    message: "لطفا تاریخ سفر خود را مشخص کنید.",
                     flights: [],
                 };
             }
 
+            // Check if passengers object exists
             if (!passengers) {
                 return {
-                    message: "",
-                    showPassengerCounter: true,
-                };
-            }
-
-            // --- Add this block: Check for missing passenger fields ---
-            const missingPassengerFields = [];
-            if (typeof passengers.adult !== "number") missingPassengerFields.push("بزرگسال");
-            if (typeof passengers.child !== "number") missingPassengerFields.push("کودک");
-            if (typeof passengers.infant !== "number") missingPassengerFields.push("نوزاد");
-
-            if (missingPassengerFields.length > 0) {
-                return {
-                    message: "",
+                    message: "لطفا تعداد مسافران را مشخص کنید.",
                     showPassengerCounter: true,
                     flights: [],
                 };
             }
 
+            // Check for complete passenger information
+            const missingPassengerInfo = [];
+            if (typeof passengers.adult !== "number") missingPassengerInfo.push("بزرگسال");
+            if (typeof passengers.child !== "number") missingPassengerInfo.push("کودک");
+            if (typeof passengers.infant !== "number") missingPassengerInfo.push("نوزاد");
+
+            if (missingPassengerInfo.length > 0) {
+                return {
+                    message: `لطفا تعداد مسافران ${missingPassengerInfo.join(" و ")} را مشخص کنید.`,
+                    showPassengerCounter: true,
+                    flights: [],
+                };
+            }
+
+            // Ensure all passenger counts are valid numbers
+            const normalizedPassengers = {
+                adult: passengers.adult || 0,
+                child: passengers.child || 0,
+                infant: passengers.infant || 0
+            };
+
+            // Validate at least one adult passenger
+            if (normalizedPassengers.adult < 1) {
+                return {
+                    message: "حداقل یک مسافر بزرگسال باید وجود داشته باشد.",
+                    showPassengerCounter: true,
+                    flights: [],
+                };
+            }
+
+            // Continue with the rest of the function using normalizedPassengers
             const { isDomestic } = await determineFlightType(
                 departureCity,
                 destinationCity
             );
+            
             if (!isDomestic && !cabinType) {
                 return {
-                    message: "",
+                    message: "لطفا کلاس پرواز را برای پرواز خارجی انتخاب کنید.",
                     showCabinTypeSelector: true,
                     flights: [],
                 };
@@ -115,13 +142,13 @@ const toolDefinitions = {
                     destinationCity
                 );
 
-                // Construct the API URL
+                // Construct the API URL with normalized passengers
                 const apiUrl = constructApiUrl(
                     isDomestic,
                     departureId,
                     destinationId,
                     date,
-                    passengers
+                    normalizedPassengers
                 );
                 console.log("api url in tools", apiUrl)
                 // Fetch flight data
@@ -222,7 +249,8 @@ const toolDefinitions = {
             adultsCount,
             childCount,
             childAges = [],
-            nationality
+            nationality,
+            isVoiceSession
         }: {
             location: string;
             checkIn: string;
@@ -231,41 +259,73 @@ const toolDefinitions = {
             childCount?: number;
             childAges?: number[];
             nationality?: any;
+            isVoiceSession?: boolean;
         }) {
             // --- Add missing parameter checks ---
             if (!location) {
                 return {
-                    message: "",
+                    message: "لطفا مقصد سفر خود را مشخص کنید.",
                     hotels: [],
                 };
             }
-            if (!checkIn || !checkOut) {
+            if (!checkIn) {
                 return {
-                    message: "",
+                    message: "لطفا تاریخ ورود را مشخص کنید.",
                     hotels: [],
                 };
             }
-            if (typeof adultsCount !== "number" || adultsCount < 1) {
+    
+            if (!checkOut) {
                 return {
-                    message: "",
+                    message: "لطفا تاریخ خروج را مشخص کنید.",
+                    hotels: [],
+                };
+            }
+            if (typeof adultsCount !== "number" ) {
+                return {
+                    message: "لطفا تعداد بزرگسالان را مشخص کنید.",
+                    showGuestCounter: true,
                     hotels: [],
 
                 };
             }
+            // Validate at least one adult
+        if (adultsCount < 1) {
+            return {
+                message: "حداقل یک مسافر بزرگسال باید وجود داشته باشد.",
+                showGuestCounter: true,
+                hotels: [],
+            };
+        }
             if (typeof childCount !== "number") {
                 return {
-                    message: "",
+                    message: "لطفا تعداد کودکان را مشخص کنید.",
+                    showGuestCounter: true,
                     hotels: [],
                 };
             }
-            // --- End missing parameter checks ---
+                    // If there are children, check for their ages
+        if (childCount > 0) {
+            if (!childAges || !Array.isArray(childAges) || childAges.length !== childCount) {
+                return {
+                    message: "لطفا سن کودکان را مشخص کنید.",
+                    showChildAgeSelector: true,
+                    hotels: [],
+                };
+            }
+        }
+            // Normalize child ages to empty array if no children
+        const normalizedChildAges = childCount > 0 ? childAges : [];
 
             try {
                 // Determine city type and get city ID
                 const cityData = await determineCityType(location);
 
                 if (typeof cityData?.parto_id === 'undefined' || cityData.parto_id === null) {
-                    throw new Error("Failed to retrieve the city identifier (parto_id).");
+                    return {
+                        message: "متاسفانه مقصد مورد نظر شما یافت نشد.",
+                        hotels: [],
+                    };
                 }
 
                 // Construct the API URL
@@ -279,6 +339,7 @@ const toolDefinitions = {
                         adultsCount,
                         childCount,
                         childAges,
+                        
                     }
                 );
 

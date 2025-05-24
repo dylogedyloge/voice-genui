@@ -20,7 +20,8 @@ function Home() {
         if (!tool || typeof tool.execute !== "function") {
           throw new Error("Flight tool not found");
         }
-        const result = await tool.execute(params);
+        // Add isVoiceSession flag to help the tool know this is a voice context
+        const result = await tool.execute({...params, isVoiceSession: true});
         setFlightLoading(false);
         return result;
       } catch (e) {
@@ -40,7 +41,8 @@ function Home() {
         if (!tool || typeof tool.execute !== "function") {
           throw new Error("Hotel tool not found");
         }
-        const result = await tool.execute(params);
+        // Add isVoiceSession flag
+        const result = await tool.execute({...params, isVoiceSession: true});
         setHotelLoading(false);
         return result;
       } catch (e) {

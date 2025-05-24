@@ -92,6 +92,14 @@ function FlightToolRenderer({
       </div>
     );
   }
+    // Show message if there are no flights but we have a message
+    if ((!flightData.flights || flightData.flights.length === 0) && flightData.message) {
+      return (
+        <div className="p-2 rounded-lg text-[#006363] bg-[#006363] bg-opacity-5 font-medium rounded-tr-none">
+          <p>{flightData.message}</p>
+        </div>
+      );
+    }
 
   if (flightData.flights && flightData.flights.length > 0) {
     return (

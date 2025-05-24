@@ -173,7 +173,7 @@ export default function useWebRTCAudioSession(
     try {
       const msg = JSON.parse(event.data);
       // console.log("Incoming dataChannel message:", msg);
-
+  
       switch (msg.type) {
         /**
          * User speech started
@@ -183,7 +183,7 @@ export default function useWebRTCAudioSession(
           updateEphemeralUserMessage({ status: "speaking" });
           break;
         }
-
+  
         /**
          * User speech stopped
          */
@@ -192,7 +192,7 @@ export default function useWebRTCAudioSession(
           updateEphemeralUserMessage({ status: "speaking" });
           break;
         }
-
+  
         /**
          * Audio buffer committed => "Processing speech..."
          */
@@ -203,7 +203,7 @@ export default function useWebRTCAudioSession(
           });
           break;
         }
-
+  
         /**
          * Partial user transcription
          */
@@ -217,7 +217,7 @@ export default function useWebRTCAudioSession(
           });
           break;
         }
-
+  
         /**
          * Final user transcription
          */
@@ -231,19 +231,26 @@ export default function useWebRTCAudioSession(
           clearEphemeralUserMessage();
           break;
         }
-
+  
         /**
          * Streaming AI transcripts (assistant partial)
          */
         case "response.audio_transcript.delta": {
+          // Filter out JSON data from spoken responses
+          let cleanedDelta = msg.delta;
+          
+          // Check if the delta contains JSON-like content and remove it
+          const jsonPattern = /\{.*?\}/g;
+          cleanedDelta = cleanedDelta.replace(jsonPattern, '');
+          
           const newMessage: Conversation = {
             id: uuidv4(), // generate a fresh ID for each assistant partial
             role: "assistant",
-            text: msg.delta,
+            text: cleanedDelta,
             timestamp: new Date().toISOString(),
             isFinal: false,
           };
-
+  
           setConversation((prev) => {
             const lastMsg = prev[prev.length - 1];
             if (lastMsg && lastMsg.role === "assistant" && !lastMsg.isFinal) {
@@ -251,7 +258,7 @@ export default function useWebRTCAudioSession(
               const updated = [...prev];
               updated[updated.length - 1] = {
                 ...lastMsg,
-                text: lastMsg.text + msg.delta,
+                text: lastMsg.text + cleanedDelta,
               };
               return updated;
             } else {
@@ -261,7 +268,7 @@ export default function useWebRTCAudioSession(
           });
           break;
         }
-
+  
         /**
          * Mark the last assistant message as final
          */
@@ -274,7 +281,7 @@ export default function useWebRTCAudioSession(
           });
           break;
         }
-
+  
         /**
          * AI calls a function (tool)
          */
@@ -282,8 +289,9 @@ export default function useWebRTCAudioSession(
           const fn = functionRegistry.current[msg.name];
           if (fn) {
             const args = JSON.parse(msg.arguments);
+            console.log("Tool function called with args:", args);
             const result = await fn(args);
-            console.log("TOOL RESULT:", result); // <--- Add this
+            console.log("Tool function result:", result);
             // Respond with function output
             const response = {
               type: "conversation.item.create",
@@ -300,6 +308,7 @@ export default function useWebRTCAudioSession(
             };
             dataChannelRef.current?.send(JSON.stringify(responseCreate));
             // --- REMOVE THIS BLOCK: Insert the tool result as an assistant message (JSON string) ---
+            if (result.flights && result.flights.length > 0) {
             setConversation((prev) => [
               ...prev,
               {
@@ -310,17 +319,18 @@ export default function useWebRTCAudioSession(
                 isFinal: true,
               },
             ]);
+          }
             // --- END BLOCK ---
           }
           break;
         }
-
+  
         default: {
           // console.warn("Unhandled message type:", msg.type);
           break;
         }
       }
-
+  
       // Always log the raw message
       setMsgs((prevMsgs) => [...prevMsgs, msg]);
       return msg;
