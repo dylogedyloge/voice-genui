@@ -242,6 +242,7 @@ const toolDefinitions = {
                 }
             }
         },
+        // In the displayHotelCard execute function
         execute: async function ({
             location,
             checkIn,
@@ -251,98 +252,44 @@ const toolDefinitions = {
             childAges = [],
             nationality,
             isVoiceSession
-        }: {
-            location: string;
-            checkIn: string;
-            checkOut: string;
-            adultsCount?: number;
-            childCount?: number;
-            childAges?: number[];
-            nationality?: any;
-            isVoiceSession?: boolean;
         }) {
-            // --- Add missing parameter checks ---
-            if (!location) {
-                return {
-                    message: "لطفا مقصد سفر خود را مشخص کنید.",
-                    hotels: [],
-                };
-            }
-            if (!checkIn) {
-                return {
-                    message: "لطفا تاریخ ورود را مشخص کنید.",
-                    hotels: [],
-                };
-            }
-    
-            if (!checkOut) {
-                return {
-                    message: "لطفا تاریخ خروج را مشخص کنید.",
-                    hotels: [],
-                };
-            }
-            if (typeof adultsCount !== "number" ) {
-                return {
-                    message: "لطفا تعداد بزرگسالان را مشخص کنید.",
-                    showGuestCounter: true,
-                    hotels: [],
-
-                };
-            }
-            // Validate at least one adult
-        if (adultsCount < 1) {
-            return {
-                message: "حداقل یک مسافر بزرگسال باید وجود داشته باشد.",
-                showGuestCounter: true,
-                hotels: [],
-            };
-        }
-            if (typeof childCount !== "number") {
-                return {
-                    message: "لطفا تعداد کودکان را مشخص کنید.",
-                    showGuestCounter: true,
-                    hotels: [],
-                };
-            }
-                    // If there are children, check for their ages
-        if (childCount > 0) {
-            if (!childAges || !Array.isArray(childAges) || childAges.length !== childCount) {
-                return {
-                    message: "لطفا سن کودکان را مشخص کنید.",
-                    showChildAgeSelector: true,
-                    hotels: [],
-                };
-            }
-        }
-            // Normalize child ages to empty array if no children
-        const normalizedChildAges = childCount > 0 ? childAges : [];
-
             try {
                 // Determine city type and get city ID
                 const cityData = await determineCityType(location);
-
-                if (typeof cityData?.parto_id === 'undefined' || cityData.parto_id === null) {
+                console.log("City data for hotel search:", cityData);
+        
+                if (!cityData || typeof cityData?.city_id_for_api === 'undefined' || cityData.city_id_for_api === null) {
+                    console.error("City not found or missing city_id_for_api:", cityData);
                     return {
                         message: "متاسفانه مقصد مورد نظر شما یافت نشد.",
                         hotels: [],
                     };
                 }
-
-                // Construct the API URL
+        
+                // Log the city_id_for_api to verify it's correct
+                console.log(`Using city ID for API: ${cityData.city_id_for_api}`);
+        
+                // Normalize parameters for API call
+                const normalizedParams = {
+                    location,
+                    checkIn,
+                    checkOut,
+                    adultsCount: adultsCount || 1,
+                    childCount: childCount || 0,
+                    childAges: childCount && childCount > 0 ? childAges : []
+                };
+        
+                console.log("Hotel search params:", normalizedParams);
+        
+                // Construct the API URL with the correct city ID
                 const apiUrl = constructHotelApiUrl(
                     cityData.isDomestic,
-                    cityData.parto_id.toString(),
-                    {
-                        location,
-                        checkIn,
-                        checkOut,
-                        adultsCount,
-                        childCount,
-                        childAges,
-                        
-                    }
+                    cityData.city_id_for_api.toString(),
+                    normalizedParams
                 );
-
+        
+                console.log("Hotel API URL:", apiUrl);
+        
                 // Fetch hotel data
                 const hotelResponse = await fetch(apiUrl, {
                     method: "GET",
@@ -350,45 +297,44 @@ const toolDefinitions = {
                         Accept: "application/json",
                         "Content-Type": "application/json",
                         "X-Requested-With": "XMLHttpRequest",
+                        "Cache-Control": "no-cache",
                     },
                     cache: "no-store",
                 });
-
+        
                 if (!hotelResponse.ok) {
+                    console.error(`Hotel API error: ${hotelResponse.status} ${hotelResponse.statusText}`);
                     throw new Error(
                         `Failed to fetch hotel data: ${hotelResponse.statusText}`
                     );
                 }
-
+        
                 const hotelData = await hotelResponse.json();
-
+                console.log("Hotel API response:", hotelData);
+        
                 // Transform hotel data into a consistent format
                 const hotels = normalizeHotelData(
                     hotelData,
                     cityData.isDomestic,
                     location,
                     checkIn,
-                    checkOut,
+                    checkOut
                 );
+        
+                console.log(`Found ${hotels.length} hotels for ${location}`);
+                
+                if (hotels.length === 0) {
+                    console.warn("No hotels found after normalization");
+                    return {
+                        message: `متاسفانه هتلی در ${location} برای تاریخ‌های مورد نظر شما یافت نشد.`,
+                        hotels: [],
+                    };
+                }
+        
+                // Return the hotel data
                 return {
+                    message: `هتل‌های ${location} برای تاریخ‌های مورد نظر شما پیدا شد.`,
                     hotels: hotels,
-                    message:
-                        hotels.length > 0
-                            ? `${hotels.length} هتل در ${location} پیدا شد.`
-                            : `متاسفانه هتلی در ${location} پیدا نشد.`,
-                    cityData: cityData,
-                    gregorianCheckIn: checkIn,
-                    gregorianCheckOut: checkOut,
-                    searchParams: {
-                        rooms: [
-                            {
-                                adult: adultsCount,
-                                child: childCount,
-                                childAges: childAges,
-                            },
-                        ],
-                        nationality: nationality || null,
-                    },
                 };
             } catch (error) {
                 console.error("Error fetching hotel data:", error);
@@ -396,18 +342,6 @@ const toolDefinitions = {
                     message:
                         "متاسفم، در حال حاضر نمی‌توانیم اطلاعات هتل را به شما بدهیم. لطفاً بعداً دوباره امتحان کنید.",
                     hotels: [],
-                    cityData: null,
-                    gregorianCheckIn: checkIn,
-                    gregorianCheckOut: checkOut,
-                    searchParams: {
-                        rooms: [
-                            {
-                                adult: adultsCount,
-                                child: childCount,
-                                childAges: childAges,
-                            },
-                        ],
-                    }
                 };
             }
         }

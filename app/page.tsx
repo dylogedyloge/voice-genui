@@ -37,15 +37,18 @@ function Home() {
     registerFunction("displayHotelCard", async (params: any) => {
       setHotelLoading(true);
       try {
+        console.log("Calling displayHotelCard tool with params:", params);
         const tool = tools.find(t => t.name === "displayHotelCard");
         if (!tool || typeof tool.execute !== "function") {
           throw new Error("Hotel tool not found");
         }
         // Add isVoiceSession flag
         const result = await tool.execute({...params, isVoiceSession: true});
+        console.log("Hotel tool result:", result);
         setHotelLoading(false);
         return result;
       } catch (e) {
+        console.error("Error in displayHotelCard:", e);
         setHotelLoading(false);
         return {
           message: "خطا در دریافت اطلاعات هتل",

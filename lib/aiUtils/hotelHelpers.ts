@@ -119,24 +119,53 @@ interface NormalizedHotel {
 //   }
 // };
 export async function determineCityType(location: string) {
+  console.log("Determining city type for location:", location);
+  
   // 1. Try domestic cities
   let response = await fetch(`${API_ENDPOINTS.DOMESTIC.CITIES}?search=${location}`);
   let data = await response.json();
   if (data.data?.results?.length > 0) {
     const cityResult = data.data.results[0];
-    return { ...cityResult,isDomestic: true, parto_id: cityResult.parto_id || cityResult.id };}
+    console.log("Found domestic city:", cityResult);
+    console.log("Domestic city ID:", cityResult.id);
+    console.log("Domestic city parto_id:", cityResult.parto_id);
+    
+    // For domestic hotels, we should use the id instead of parto_id
+    const result = { 
+      ...cityResult,
+      isDomestic: true, 
+      city_id_for_api: cityResult.id // Use id for domestic hotels
+    };
+    
+    console.log("Final domestic city data:", result);
+    console.log("City ID for API:", result.city_id_for_api);
+    
+    return result;
+  }
 
   // 2. Try international hotel cities (new endpoint) ONLY
   response = await fetch(`${API_ENDPOINTS.INTERNATIONAL.HOTEL_CITIES}${encodeURIComponent(location)}`);
   data = await response.json();
   if (data.data?.results?.length > 0) {
     const cityResult = data.data.results[0];
-    return { ...cityResult, 
+    console.log("Found international city:", cityResult);
+    console.log("International city ID:", cityResult.id);
+    console.log("International city parto_id:", cityResult.parto_id);
+    
+    // For international hotels, we should use parto_id
+    const result = { 
+      ...cityResult, 
       isDomestic: false,
-      parto_id: cityResult.parto_id || cityResult.id,
+      city_id_for_api: cityResult.parto_id || cityResult.id // Use parto_id for international hotels
     };
+    
+    console.log("Final international city data:", result);
+    console.log("City ID for API:", result.city_id_for_api);
+    
+    return result;
   }
 
+  console.log("No city found for location:", location);
   throw new Error("City not found");
 }
 
@@ -144,36 +173,56 @@ export async function determineCityType(location: string) {
 export const constructHotelApiUrl = (
   isDomestic: boolean,
   cityId: string,
-  params: HotelSearchParams
-): string => {
-  const { checkIn, checkOut, adultsCount, childCount, childAges } = params;
-
-  // Ensure dates are in correct format
-  const formattedCheckIn = checkIn.split("T")[0];
-  const formattedCheckOut = checkOut.split("T")[0];
-
-  // console.log("Formatted dates:", {
-  //   checkIn: formattedCheckIn,
-  //   checkOut: formattedCheckOut,
-  // });
-
+  params: {
+    location: string;
+    checkIn: string;
+    checkOut: string;
+    adultsCount: number;
+    childCount: number;
+    childAges: number[];
+  }
+) => {
+  console.log("Constructing hotel API URL with params:", { isDomestic, cityId, params });
+  console.log("City ID type:", typeof cityId, "City ID value:", cityId);
+  
+  // Ensure dates are in the correct format (YYYY-MM-DD)
+  const checkIn = params.checkIn;
+  const checkOut = params.checkOut;
+  
   if (isDomestic) {
-    const url = `${API_ENDPOINTS.DOMESTIC.HOTELS}/?city=${cityId}&check_in=${formattedCheckIn}&check_out=${formattedCheckOut}&adults_count=${adultsCount}`;
-    // console.log("Generated URL:", url);
+    // Domestic hotel API URL - Fix parameter names
+    const baseUrl = API_ENDPOINTS.DOMESTIC.HOTELS;
+    const queryParams = new URLSearchParams({
+      city: cityId, // Changed from city_id to city
+      check_in: checkIn,
+      check_out: checkOut,
+      adults_count: params.adultsCount.toString(), // Changed from adult_count to adults_count
+      child_count: params.childCount.toString(),
+      child_ages: params.childAges.join(','),
+      page: "1" // Added page parameter
+    });
+    
+    const url = `${baseUrl}?${queryParams.toString()}`;
+    console.log("Domestic hotel API URL:", url);
+    return url;
+  } else {
+    // International hotel API URL
+    const baseUrl = API_ENDPOINTS.INTERNATIONAL.HOTELS;
+    const queryParams = new URLSearchParams({
+      city: cityId, // This should be the parto_id from determineCityType
+      check_in: checkIn,
+      check_out: checkOut,
+      adults_count: params.adultsCount.toString(),
+      child_count: params.childCount.toString(),
+      child_ages: params.childAges.join(','),
+      nationality: "IR",
+      page: "1"
+    });
+    
+    const url = `${baseUrl}?${queryParams.toString()}`;
+    console.log("International hotel API URL:", url);
     return url;
   }
-
-  const queryParams = new URLSearchParams({
-    city: cityId,
-    check_in: formattedCheckIn,
-    check_out: formattedCheckOut,
-    adult_count: adultsCount.toString(),
-    child_count: childCount.toString(),
-    child_ages: childAges.join(","),
-    nationality: "IR",
-  });
-
-  return `${API_ENDPOINTS.INTERNATIONAL.HOTELS}/?${queryParams.toString()}`;
 };
 
 export const normalizeHotelData = (
@@ -183,6 +232,8 @@ export const normalizeHotelData = (
   checkIn: string,
   checkOut: string
 ): NormalizedHotel[] => {
+  console.log("Normalizing hotel data:", { isDomestic, rawDataStructure: typeof rawData });
+  
   if (isDomestic) {
     // Check for domestic data structure
     if (!rawData?.data?.data || !Array.isArray(rawData.data.data)) {
@@ -191,6 +242,8 @@ export const normalizeHotelData = (
     }
 
     const validData = rawData.data.data.filter((hotel: any) => hotel !== null);
+    console.log(`Found ${validData.length} valid domestic hotels`);
+    
     return validData.map((hotel: any) => ({
       id: hotel.id?.toString() || null,
       hotel_id: hotel.hotel_id?.toString() || null, 
@@ -209,74 +262,63 @@ export const normalizeHotelData = (
       type: hotel.type || "هتل",
       rooms: hotel.rooms || [],
       isDomestic: true,
-      fare: hotel.fare || null,
+      // Add all other properties needed for the hotel card
+      fare: hotel.fare || { total: hotel.price?.total || hotel.min_price || 0 },
+      fare_source_code: hotel.fare_source_code || "",
+      star_rating: hotel.star_rating || 0,
+      offer: hotel.offer || null,
+      promotion: hotel.promotion || null,
+      non_refundable: hotel.non_refundable || false,
+      policy: hotel.policy || null,
+      extra_charge: hotel.extra_charge || null,
+      payment_deadline: hotel.payment_deadline || null,
+      available_rooms: hotel.available_rooms || null,
+      cancellation_policy_text: hotel.cancellation_policy_text || null,
+      cancellation_policies: hotel.cancellation_policies || null,
     }));
-  }
-
-  // International hotels
-  if (!rawData?.data?.results || !Array.isArray(rawData.data.results)) {
-    console.error("Invalid international hotel data structure:", rawData);
-    return [];
-  }
-
-  return rawData.data.results.map((hotel: any) => {
-    // Flatten rooms object to array
-    let rooms: any[] = [];
-    if (hotel.rooms && typeof hotel.rooms === "object" && !Array.isArray(hotel.rooms)) {
-      rooms = Object.values(hotel.rooms).map((room: any) => ({
-        room_type_name: room?.name || "Standard",
-        room_type_capacity: room?.travelers?.adult_count
-          ? Object.values(room.travelers.adult_count)[0]
-          : 1,
-        rate_plans: [], // No rate_plans in your sample, adjust if needed
-      }));
+  } else {
+    // International hotels
+    if (!rawData?.data?.data || !Array.isArray(rawData.data.data)) {
+      console.error("Invalid international hotel data structure:", rawData);
+      return [];
     }
 
-    return {
-      id: hotel.id?.toString() || `hotel_${Math.random()}`,
-      hotel_id: hotel.hotel_id?.toString() ?? null, // <-- FIXED: use hotel.hotel_id, not hotel.id
+    const validData = rawData.data.data.filter((hotel: any) => hotel !== null);
+    console.log(`Found ${validData.length} valid international hotels`);
+    
+    return validData.map((hotel: any) => ({
+      id: hotel.id?.toString() || null,
+      hotel_id: hotel.hotel_id?.toString() || null,
       hotelName: hotel.name || "Unknown Hotel",
       location: location,
       checkIn: DateService.toJalali(checkIn),
       checkOut: DateService.toJalali(checkOut),
-      roomType: rooms[0]?.room_type_name || "Standard",
-      price: hotel.fare?.total || 0, // <-- Use fare.total
+      roomType: hotel.rooms?.[0]?.room_type_name || "Standard",
+      price: hotel.fare?.total || hotel.price?.total || hotel.min_price || 0,
       rating: hotel.star_rating || 0,
-      imageUrl: hotel.images?.[0]?.image || "",
+      imageUrl: hotel.image_url || "",
       amenities: hotel.amenities || [],
       images: hotel.images || [],
       address: hotel.address || "",
       star: hotel.star || 0,
-      type: hotel.type || "Hotel",
-      rooms: rooms,
+      type: hotel.type || "هتل",
+      rooms: hotel.rooms || [],
       isDomestic: false,
-      fare: hotel.fare || null,
-      fare_source_code: hotel.fare_source_code ?? null,
-      star_rating: hotel.star_rating ?? 0, 
-      offer: hotel.offer ?? null,
-      promotion: hotel.promotion ?? null,
-      non_refundable: hotel.non_refundable ?? null,
-      policy: hotel.policy ?? null,
-      extra_charge: hotel.extra_charge ?? null,
-      payment_deadline: hotel.payment_deadline ?? null,
-      available_rooms: hotel.available_rooms ?? null,
-      cancellation_policy_text: hotel.cancellation_policy_text ?? null,
-      cancellation_policies: hotel.cancellation_policies ?? [],
-      surcharges: hotel.surcharges ?? null, 
-      remarks: hotel.remarks ?? null,
-      is_reserve_offline: hotel.is_reserve_offline ?? null,
-      is_blockout: hotel.is_blockout ?? null,
-      is_min_stay_night: hotel.is_min_stay_night ?? null,
-      is_max_stay_night: hotel.is_max_stay_night ?? null,
-      max_stay_night: hotel.max_stay_night ?? null,
-      is_fix_stay_night: hotel.is_fix_stay_night ?? null,
-      fix_stay_night: hotel.fix_stay_night ?? null,
-      is_board_price: hotel.is_board_price ?? null,
-      refund_type: hotel.refund_type ?? null,
-      transfers: hotel.transfers ?? null,
-      metadata: hotel.metadata ?? null,
-    };
-  });
+      // Add all other properties needed for the hotel card
+      fare: hotel.fare || { total: hotel.price?.total || hotel.min_price || 0 },
+      fare_source_code: hotel.fare_source_code || "",
+      star_rating: hotel.star_rating || 0,
+      offer: hotel.offer || null,
+      promotion: hotel.promotion || null,
+      non_refundable: hotel.non_refundable || false,
+      policy: hotel.policy || null,
+      extra_charge: hotel.extra_charge || null,
+      payment_deadline: hotel.payment_deadline || null,
+      available_rooms: hotel.available_rooms || null,
+      cancellation_policy_text: hotel.cancellation_policy_text || null,
+      cancellation_policies: hotel.cancellation_policies || null,
+    }));
+  }
 };
 
 // Main hotel search function
@@ -291,13 +333,22 @@ export const searchHotels = async (
 
     // Determine city type and get city ID
     const cityData = await determineCityType(params.location);
+    console.log("City data for hotel search in searchHotels:", cityData);
 
-    // Construct API URL
+    // Make sure we have the city_id_for_api property
+    if (!cityData.city_id_for_api) {
+      console.error("Missing city_id_for_api in cityData:", cityData);
+      throw new Error("Missing city ID for API");
+    }
+
+    // Construct API URL with the correct city ID
     const apiUrl = constructHotelApiUrl(
       cityData.isDomestic,
-      cityData.parto_id.toString(),
+      cityData.city_id_for_api.toString(), // Use city_id_for_api instead of parto_id
       params
     );
+
+    console.log("Hotel search API URL:", apiUrl);
 
     // Fetch hotel data
     const response = await fetch(apiUrl, {
@@ -309,22 +360,25 @@ export const searchHotels = async (
       },
     });
     if (!response.ok) {
-      // throw new Error(`API request failed with status ${response.status}`);
       const errorData = await response.json();
       console.error("API Error Response:", errorData);
       throw new Error(`API request failed: ${JSON.stringify(errorData)}`);
     }
 
     const rawData = await response.json();
+    console.log("Hotel API raw response:", rawData);
 
     // Normalize and return data
-    return normalizeHotelData(
+    const normalizedData = normalizeHotelData(
       rawData,
       cityData.isDomestic,
       params.location,
       params.checkIn,
       params.checkOut
     );
+    
+    console.log("Normalized hotel data count:", normalizedData.length);
+    return normalizedData;
   } catch (error) {
     console.error("Hotel search error:", error);
     throw new Error("Failed to search for hotels");
