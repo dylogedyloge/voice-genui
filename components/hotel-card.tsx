@@ -149,7 +149,7 @@ const HotelCard = ({
     setIsAccordionOpen(!isAccordionOpen);
   };
   const handleDomesticHotelPurchase = () => {
-    console.log("Triggering Domestic Hotel Purchase Logic...");
+    // console.log("Triggering Domestic Hotel Purchase Logic...");
     const transformedHotelInfo = {
       hotelName,
       type,
@@ -198,7 +198,7 @@ const HotelCard = ({
 
   // Function for "International" type purchase (placeholder, called from within accordion)
   const handleInternationalHotelPurchase = () => {
-    console.log("Triggering International Hotel Purchase Logic...");
+    // console.log("Triggering International Hotel Purchase Logic...");
     const transformedHotelInfo = {
       fare_source_code: fare_source_code || "",
       id: id ? parseInt(id.toString()) : Math.floor(Math.random() * 1000000),
@@ -362,7 +362,7 @@ const HotelCard = ({
       transition={{ duration: 0.3 }}
     >
       <div className="w-full shadow-md dark:bg-black bg-white dark:bg-grid-small-white/[0.1] bg-grid-small-black/[0.1] rounded-lg overflow-x-hidden">
-        <div className="relative h-48 w-80">
+        <div className="relative h-48 w-98">
           {Array.isArray(images) && images.length > 0 && images[0]?.image ? (
             <CustomCarousel images={images} hotelName={hotelName} />
           ) : (

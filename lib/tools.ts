@@ -150,7 +150,7 @@ const toolDefinitions = {
                     date,
                     normalizedPassengers
                 );
-                console.log("api url in tools", apiUrl)
+                // console.log("api url in tools", apiUrl)
                 // Fetch flight data
                 const flightResponse = await fetch(apiUrl, {
                     method: isDomestic ? "GET" : "POST",
@@ -256,7 +256,7 @@ const toolDefinitions = {
             try {
                 // Determine city type and get city ID
                 const cityData = await determineCityType(location);
-                console.log("City data for hotel search:", cityData);
+                // console.log("City data for hotel search:", cityData);
         
                 if (!cityData || typeof cityData?.city_id_for_api === 'undefined' || cityData.city_id_for_api === null) {
                     console.error("City not found or missing city_id_for_api:", cityData);
@@ -267,7 +267,7 @@ const toolDefinitions = {
                 }
         
                 // Log the city_id_for_api to verify it's correct
-                console.log(`Using city ID for API: ${cityData.city_id_for_api}`);
+                // console.log(`Using city ID for API: ${cityData.city_id_for_api}`);
         
                 // Normalize parameters for API call
                 const normalizedParams = {
@@ -279,7 +279,7 @@ const toolDefinitions = {
                     childAges: childCount && childCount > 0 ? childAges : []
                 };
         
-                console.log("Hotel search params:", normalizedParams);
+                // console.log("Hotel search params:", normalizedParams);
         
                 // Construct the API URL with the correct city ID
                 const apiUrl = constructHotelApiUrl(
@@ -288,7 +288,7 @@ const toolDefinitions = {
                     normalizedParams
                 );
         
-                console.log("Hotel API URL:", apiUrl);
+                // console.log("Hotel API URL:", apiUrl);
         
                 // Fetch hotel data
                 const hotelResponse = await fetch(apiUrl, {
@@ -310,7 +310,7 @@ const toolDefinitions = {
                 }
         
                 const hotelData = await hotelResponse.json();
-                console.log("Hotel API response:", hotelData);
+                // console.log("Hotel API response:", hotelData);
         
                 // Transform hotel data into a consistent format
                 const hotels = normalizeHotelData(
@@ -321,7 +321,7 @@ const toolDefinitions = {
                     checkOut
                 );
         
-                console.log(`Found ${hotels.length} hotels for ${location}`);
+                // console.log(`Found ${hotels.length} hotels for ${location}`);
                 
                 if (hotels.length === 0) {
                     console.warn("No hotels found after normalization");
@@ -335,6 +335,10 @@ const toolDefinitions = {
                 return {
                     message: `هتل‌های ${location} برای تاریخ‌های مورد نظر شما پیدا شد.`,
                     hotels: hotels,
+                    cityData, // add this
+                    gregorianCheckIn: checkIn, // or convert if needed
+                    gregorianCheckOut: checkOut, // or convert if needed
+                    searchParams: normalizedParams // or the original params
                 };
             } catch (error) {
                 console.error("Error fetching hotel data:", error);
@@ -360,6 +364,6 @@ const tools: Tool[] = Object.entries(toolDefinitions).map(([name, config]) => ({
     execute: config.execute // Pass the execute function if present
 }));
 
-console.log("TOOLS ARRAY:", tools);
+// console.log("TOOLS ARRAY:", tools);
 export type { Tool };
 export { tools };

@@ -288,14 +288,21 @@ function Transcriber({ conversation, flightLoading, hotelLoading }: TranscriberP
               message.text.trim().startsWith("{")
             ) {
               const parsed = JSON.parse(message.text);
-              console.log("PARSED ASSISTANT MESSAGE:", parsed); // <--- Add this
+             
               if (parsed && typeof parsed === "object") {
                 if ("flights" in parsed) {
                   toolData = parsed;
                   toolType = "flight";
-                } else if ("hotels" in parsed) { // <-- Add this block
+                } else if ("hotels" in parsed) {
                   toolData = parsed;
                   toolType = "hotel";
+                 
+                  // if (Array.isArray(toolData.hotels)) {
+                  //   console.log(
+                  //     "[Transcriber] First hotel object:",
+                  //     toolData.hotels[0]
+                  //   );
+                  // }
                 }
               }
             }

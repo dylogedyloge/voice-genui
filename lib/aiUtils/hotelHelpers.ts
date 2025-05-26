@@ -119,16 +119,16 @@ interface NormalizedHotel {
 //   }
 // };
 export async function determineCityType(location: string) {
-  console.log("Determining city type for location:", location);
+  // console.log("Determining city type for location:", location);
   
   // 1. Try domestic cities
   let response = await fetch(`${API_ENDPOINTS.DOMESTIC.CITIES}?search=${location}`);
   let data = await response.json();
   if (data.data?.results?.length > 0) {
     const cityResult = data.data.results[0];
-    console.log("Found domestic city:", cityResult);
-    console.log("Domestic city ID:", cityResult.id);
-    console.log("Domestic city parto_id:", cityResult.parto_id);
+    // console.log("Found domestic city:", cityResult);
+    // console.log("Domestic city ID:", cityResult.id);
+    // console.log("Domestic city parto_id:", cityResult.parto_id);
     
     // For domestic hotels, we should use the id instead of parto_id
     const result = { 
@@ -137,8 +137,8 @@ export async function determineCityType(location: string) {
       city_id_for_api: cityResult.id // Use id for domestic hotels
     };
     
-    console.log("Final domestic city data:", result);
-    console.log("City ID for API:", result.city_id_for_api);
+    // console.log("Final domestic city data:", result);
+    // console.log("City ID for API:", result.city_id_for_api);
     
     return result;
   }
@@ -148,9 +148,9 @@ export async function determineCityType(location: string) {
   data = await response.json();
   if (data.data?.results?.length > 0) {
     const cityResult = data.data.results[0];
-    console.log("Found international city:", cityResult);
-    console.log("International city ID:", cityResult.id);
-    console.log("International city parto_id:", cityResult.parto_id);
+    // console.log("Found international city:", cityResult);
+    // console.log("International city ID:", cityResult.id);
+    // console.log("International city parto_id:", cityResult.parto_id);
     
     // For international hotels, we should use parto_id
     const result = { 
@@ -159,13 +159,13 @@ export async function determineCityType(location: string) {
       city_id_for_api: cityResult.parto_id || cityResult.id // Use parto_id for international hotels
     };
     
-    console.log("Final international city data:", result);
-    console.log("City ID for API:", result.city_id_for_api);
+    // console.log("Final international city data:", result);
+    // console.log("City ID for API:", result.city_id_for_api);
     
     return result;
   }
 
-  console.log("No city found for location:", location);
+  // console.log("No city found for location:", location);
   throw new Error("City not found");
 }
 
@@ -182,8 +182,8 @@ export const constructHotelApiUrl = (
     childAges: number[];
   }
 ) => {
-  console.log("Constructing hotel API URL with params:", { isDomestic, cityId, params });
-  console.log("City ID type:", typeof cityId, "City ID value:", cityId);
+  // console.log("Constructing hotel API URL with params:", { isDomestic, cityId, params });
+  // console.log("City ID type:", typeof cityId, "City ID value:", cityId);
   
   // Ensure dates are in the correct format (YYYY-MM-DD)
   const checkIn = params.checkIn;
@@ -203,7 +203,7 @@ export const constructHotelApiUrl = (
     });
     
     const url = `${baseUrl}?${queryParams.toString()}`;
-    console.log("Domestic hotel API URL:", url);
+    // console.log("Domestic hotel API URL:", url);
     return url;
   } else {
     // International hotel API URL
@@ -220,7 +220,7 @@ export const constructHotelApiUrl = (
     });
     
     const url = `${baseUrl}?${queryParams.toString()}`;
-    console.log("International hotel API URL:", url);
+    // console.log("International hotel API URL:", url);
     return url;
   }
 };
@@ -232,7 +232,7 @@ export const normalizeHotelData = (
   checkIn: string,
   checkOut: string
 ): NormalizedHotel[] => {
-  console.log("Normalizing hotel data:", { isDomestic, rawDataStructure: typeof rawData });
+  // console.log("Normalizing hotel data:", { isDomestic, rawDataStructure: typeof rawData });
   
   if (isDomestic) {
     // Check for domestic data structure
@@ -242,7 +242,7 @@ export const normalizeHotelData = (
     }
 
     const validData = rawData.data.data.filter((hotel: any) => hotel !== null);
-    console.log(`Found ${validData.length} valid domestic hotels`);
+    // console.log(`Found ${validData.length} valid domestic hotels`);
     
     return validData.map((hotel: any) => ({
       id: hotel.id?.toString() || null,
@@ -284,7 +284,7 @@ export const normalizeHotelData = (
     }
 
     const validData = rawData.data.data.filter((hotel: any) => hotel !== null);
-    console.log(`Found ${validData.length} valid international hotels`);
+    // console.log(`Found ${validData.length} valid international hotels`);
     
     return validData.map((hotel: any) => ({
       id: hotel.id?.toString() || null,
@@ -333,7 +333,7 @@ export const searchHotels = async (
 
     // Determine city type and get city ID
     const cityData = await determineCityType(params.location);
-    console.log("City data for hotel search in searchHotels:", cityData);
+    // console.log("City data for hotel search in searchHotels:", cityData);
 
     // Make sure we have the city_id_for_api property
     if (!cityData.city_id_for_api) {
@@ -348,7 +348,7 @@ export const searchHotels = async (
       params
     );
 
-    console.log("Hotel search API URL:", apiUrl);
+    // console.log("Hotel search API URL:", apiUrl);
 
     // Fetch hotel data
     const response = await fetch(apiUrl, {
@@ -366,7 +366,7 @@ export const searchHotels = async (
     }
 
     const rawData = await response.json();
-    console.log("Hotel API raw response:", rawData);
+    // console.log("Hotel API raw response:", rawData);
 
     // Normalize and return data
     const normalizedData = normalizeHotelData(
@@ -377,7 +377,7 @@ export const searchHotels = async (
       params.checkOut
     );
     
-    console.log("Normalized hotel data count:", normalizedData.length);
+    // console.log("Normalized hotel data count:", normalizedData.length);
     return normalizedData;
   } catch (error) {
     console.error("Hotel search error:", error);

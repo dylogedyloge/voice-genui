@@ -96,8 +96,8 @@ export default function useWebRTCAudioSession(
     };
     dataChannel.send(JSON.stringify(sessionUpdate));
 
-    console.log("Session update sent:", sessionUpdate);
-    console.log("Setting locale: " + t("language") + " : " + locale);
+    // console.log("Session update sent:", sessionUpdate);
+    // console.log("Setting locale: " + t("language") + " : " + locale);
 
     // Send language preference message
     const languageMessage = {
@@ -289,9 +289,9 @@ export default function useWebRTCAudioSession(
           const fn = functionRegistry.current[msg.name];
           if (fn) {
             const args = JSON.parse(msg.arguments);
-            console.log("Tool function called with args:", args);
+            // console.log("Tool function called with args:", args);
             const result = await fn(args);
-            console.log("Tool function result:", result);
+            // console.log("Tool function result:", result);
             // Respond with function output
             const response = {
               type: "conversation.item.create",
@@ -307,20 +307,23 @@ export default function useWebRTCAudioSession(
               type: "response.create",
             };
             dataChannelRef.current?.send(JSON.stringify(responseCreate));
-            // --- REMOVE THIS BLOCK: Insert the tool result as an assistant message (JSON string) ---
-            if (result.flights && result.flights.length > 0) {
-            setConversation((prev) => [
-              ...prev,
-              {
-                id: uuidv4(),
-                role: "assistant",
-                text: JSON.stringify(result),
-                timestamp: new Date().toISOString(),
-                isFinal: true,
-              },
-            ]);
-          }
-            // --- END BLOCK ---
+            // --- FIX: Insert result for both flights and hotels ---
+            if (
+              (result.flights && result.flights.length > 0) ||
+              (result.hotels && result.hotels.length > 0)
+            ) {
+              setConversation((prev) => [
+                ...prev,
+                {
+                  id: uuidv4(),
+                  role: "assistant",
+                  text: JSON.stringify(result),
+                  timestamp: new Date().toISOString(),
+                  isFinal: true,
+                },
+              ]);
+            }
+            // --- END FIX ---
           }
           break;
         }

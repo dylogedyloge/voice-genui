@@ -2,7 +2,7 @@ import { API_ENDPOINTS } from "@/endpoints/endpoints";
 
 // Helper function to fetch city data from the API
 export const fetchCityData = async (cityName: string, apiEndpoint: string, isDomestic: boolean) => {
-    console.log(`Checking ${apiEndpoint}?search=${cityName}`);
+    // console.log(`Checking ${apiEndpoint}?search=${cityName}`);
     const response = await fetch(`${apiEndpoint}?search=${cityName}`);
     
     if (response.ok) {
