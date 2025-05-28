@@ -252,6 +252,24 @@ const toolDefinitions = {
             childAges = [],
             nationality,
             isVoiceSession
+        }: {
+            location: string;
+            checkIn: string;
+            checkOut: string;
+            adultsCount: number;
+            childCount: number;
+            childAges: number[];
+            nationality?: {
+                id: number;
+                name: string;
+                english_name: string;
+                iata?: string;
+                parto_iata?: string;
+                description?: string;
+                nationality: string;
+                continental: string;
+            };
+            isVoiceSession?: boolean;
         }) {
             try {
                 // Determine city type and get city ID
