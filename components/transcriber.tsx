@@ -83,7 +83,7 @@ function FlightToolRenderer({
   // Remove this block
   if (flightLoading && isLastMessage) {
     return (
-      <div className="max-w-[80%] p-2 rounded-lg text-white bg-[#006363] bg-opacity-5 font-medium rounded-tr-none">
+      <div className="max-w-[80%] p-2 rounded-lg text-[#006363] bg-[#006363] bg-opacity-5 font-medium rounded-tr-none">
         <div className="mt-2 grid sm:grid-cols-2 grid-cols-1 gap-2 sm:gap-4">
           {Array.from({ length: 2 }).map((_, i) => (
             <FlightCardSkeleton key={i} />
@@ -95,7 +95,7 @@ function FlightToolRenderer({
     // Show message if there are no flights but we have a message
     if ((!flightData.flights || flightData.flights.length === 0) && flightData.message) {
       return (
-        <div className="p-2 rounded-lg text-white bg-[#006363] bg-opacity-5 font-medium rounded-tr-none">
+        <div className="p-2 rounded-lg text-[#006363] bg-[#006363] bg-opacity-5 font-medium rounded-tr-none">
           <p>{flightData.message}</p>
         </div>
       );
@@ -103,7 +103,7 @@ function FlightToolRenderer({
 
   if (flightData.flights && flightData.flights.length > 0) {
     return (
-      <div className="p-2 rounded-lg text-white bg-[#006363] bg-opacity-5 font-medium rounded-tr-none">
+      <div className="p-2 rounded-lg text-[#006363] bg-[#006363] bg-opacity-5 font-medium rounded-tr-none">
         <div className="mt-2 grid sm:grid-cols-2 grid-cols-1 gap-2 sm:gap-4">
           {flightData.flights
             .slice(0, visibleCount)
@@ -165,7 +165,7 @@ function FlightToolRenderer({
 
   // Fallback for no flights
   return (
-    <div className="max-w-[80%] p-2 rounded-lg rounded-tr-none text-white bg-[#006363] bg-opacity-5 font-medium text-right">
+    <div className="max-w-[80%] p-2 rounded-lg rounded-tr-none text-[#006363] bg-[#006363] bg-opacity-5 font-medium text-right">
       <p>{flightData.message}</p>
       <p className="text-xs text-muted-foreground prose-sm text-left my-1">
         {formatPersianTime(new Date())}
@@ -195,7 +195,7 @@ function HotelToolRenderer({
   // Remove this block
   if (hotelLoading && isLastMessage) {
     return (
-      <div className="max-w-[80%] p-2 rounded-lg text-white bg-[#006363] bg-opacity-5 font-medium rounded-tr-none">
+      <div className="max-w-[80%] p-2 rounded-lg text-[#006363] bg-[#006363] bg-opacity-5 font-medium rounded-tr-none">
         <div className="mt-2 grid grid-cols-1 gap-2 sm:grid-cols-2 sm:gap-4">
           {Array.from({ length: 2 }).map((_, i) => (
             <HotelCardSkeleton key={i} />
@@ -207,7 +207,7 @@ function HotelToolRenderer({
 
   if (hotelData.hotels && hotelData.hotels.length > 0) {
     return (
-      <div className="p-2 rounded-lg text-white bg-[#006363] bg-opacity-5 font-medium rounded-tr-none">
+      <div className="p-2 rounded-lg text-[#006363] bg-[#006363] bg-opacity-5 font-medium rounded-tr-none">
         <div className="mt-2 grid sm:grid-cols-2 grid-cols-1 gap-2 sm:gap-4">
           {hotelData.hotels
             .slice(0, visibleCount)
@@ -247,7 +247,7 @@ function HotelToolRenderer({
 
   // Fallback for no hotels
   return (
-    <div className="max-w-[80%] p-2 rounded-lg rounded-tr-none text-white bg-[#006363] bg-opacity-5 font-medium text-right">
+    <div className="max-w-[80%] p-2 rounded-lg rounded-tr-none text-[#006363] bg-[#006363] bg-opacity-5 font-medium text-right">
       <p>{hotelData.message}</p>
       <p className="text-xs text-muted-foreground prose-sm text-left my-1">
         {formatPersianTime(new Date())}
@@ -347,7 +347,7 @@ function Transcriber({ conversation, flightLoading, hotelLoading }: TranscriberP
                 ) : (
                   !toolData && (
                     <div
-                      className="max-w-[80%] p-2 rounded-lg rounded-tr-none text-white bg-[#006363] bg-opacity-5 font-medium text-right"
+                      className="max-w-[80%] p-2 rounded-lg rounded-tr-none text-[#006363] bg-[#006363] bg-opacity-5 font-medium text-right"
                     >
                       <p>{message.text}</p>
                       <p className="text-xs text-muted-foreground prose-sm text-left my-1">
@@ -364,7 +364,7 @@ function Transcriber({ conversation, flightLoading, hotelLoading }: TranscriberP
 
       {/* Show skeletons if loading and last message is from user */}
       {flightLoading && conversation.length > 0 && conversation[conversation.length - 1].role === "user" && (
-        <div className="p-2 rounded-lg text-white bg-[#006363] bg-opacity-5 font-medium rounded-tr-none">
+        <div className="p-2 rounded-lg text-[#006363] bg-[#006363] bg-opacity-5 font-medium rounded-tr-none">
           <div className="mt-2 grid sm:grid-cols-2 grid-cols-1 gap-2 sm:gap-4">
             {/* Skeleton cards */}
             {Array.from({ length: 2 }).map((_, i) => (
@@ -374,7 +374,7 @@ function Transcriber({ conversation, flightLoading, hotelLoading }: TranscriberP
         </div>
       )}
       {hotelLoading && conversation.length > 0 && conversation[conversation.length - 1].role === "user" && (
-        <div className="max-w-[80%] p-2 rounded-lg text-white bg-[#006363] bg-opacity-5 font-medium rounded-tr-none">
+        <div className="max-w-[80%] p-2 rounded-lg text-[#006363] bg-[#006363] bg-opacity-5 font-medium rounded-tr-none">
           <div className="mt-2 grid sm:grid-cols-2 grid-cols-1 gap-2 sm:gap-4">
             {Array.from({ length: 2 }).map((_, i) => (
               <HotelCardSkeleton key={i} />
